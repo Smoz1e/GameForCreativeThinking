@@ -30,6 +30,20 @@ const gameState = {
             turnsLeft: 1,
             extraTurnPrice: 120,
             positionId: 1
+        },
+        {
+            id: 3,
+            name: 'Игрок 3',
+            money: 900,
+            time: 24,
+            energy: 100,
+            skill: 1,
+            career: 0,
+            workedThisWeek: 0,
+            studiedThisWeek: 0,
+            turnsLeft: 1,
+            extraTurnPrice: 120,
+            positionId: 1
         }
     ]
 };
@@ -126,6 +140,18 @@ function getDownSectorId(currentId) {
     return downId <= sectors.length ? downId : null;
 }
 
+function getDistanceBetweenSectors(fromId, toId) {
+    // Расчет расстояния Manhattan в сетке 5x5
+    const fromRow = Math.floor((fromId - 1) / MAP_SIZE);
+    const fromCol = (fromId - 1) % MAP_SIZE;
+
+    const toRow = Math.floor((toId - 1) / MAP_SIZE);
+    const toCol = (toId - 1) % MAP_SIZE;
+
+    const distance = Math.abs(fromRow - toRow) + Math.abs(fromCol - toCol);
+    return Math.max(1, distance); // Минимум 1, даже если на одной клетке
+}
+
 function predictWorkIncome(player, sector) {
     const skillFactor = 1 + player.skill * 0.15;
     const careerFactor = 1 + player.career * 0.06;
@@ -146,7 +172,7 @@ function renderPlayersBoard() {
 
         row.innerHTML = `
             <span>${player.name}</span>
-            <span>$${player.money} | Навык ${player.skill.toFixed(1)} | Ходы ${player.turnsLeft} | Место ${player.positionId}</span>
+            <span>$${player.money} | Навык ${player.skill.toFixed(1)} | Ходы ${player.turnsLeft}</span>
         `;
 
         playersBoard.appendChild(row);
@@ -166,7 +192,8 @@ function renderStats() {
     currentPlayerValue.textContent = player.name;
     dayStarterValue.textContent = gameState.players[gameState.dayStarterIndex].name;
     turnsLeftValue.textContent = String(player.turnsLeft);
-    buyTurnButton.textContent = `Купить ход (${player.extraTurnPrice})`;
+    buyTurnButton.textContent = `⭐ Купить ход (${player.extraTurnPrice})`;
+    nextTurnButton.textContent = `➡️ Передать ход`;
 
     renderPlayersBoard();
     renderMapState();
@@ -290,30 +317,29 @@ function doStudy() {
     renderSectorInfo();
 }
 
-function moveToLocation(targetSectorId, directionLabel) {
+function moveToSector(sectorId) {
     const player = getActivePlayer();
-    const currentSector = getCurrentSector(player);
-    if (!currentSector) {
+    const targetSectorId = parseInt(sectorId);
+
+    if (player.positionId === targetSectorId) {
+        addLog(`${player.name}: вы уже находитесь в "${getCurrentSector(player).name}".`, 'warning');
         return;
     }
 
-    if (!consumeTurn(player)) {
-        return;
-    }
+    // НОВОЕ: Рассчитываем расстояние между клетками
+    const distance = getDistanceBetweenSectors(player.positionId, targetSectorId);
 
-    const moveMoneyCost = 25;
-    const moveTimeCost = 2;
-    const moveEnergyCost = 4;
+    const moveMoneyCost = 25; // Стоимость в деньгах
+    const moveTimeCost = distance * 1; // Время: расстояние × 1 час за клетку
+    const moveEnergyCost = distance * 2; // Энергия: расстояние × 2 (как вы просили)
 
     if (player.money < moveMoneyCost) {
-        player.turnsLeft += 1;
-        addLog(`${player.name}: недостаточно денег на переход в следующую локацию.`, 'warning');
+        addLog(`${player.name}: недостаточно денег на переход.`, 'warning');
         return;
     }
 
     if (player.time < moveTimeCost) {
-        player.turnsLeft += 1;
-        addLog(`${player.name}: недостаточно времени на перемещение.`, 'warning');
+        addLog(`${player.name}: недостаточно времени для перемещения (требуется ${moveTimeCost}ч).`, 'warning');
         if (player.time <= 0) {
             autoPassTurnIfNoTime();
         }
@@ -321,53 +347,24 @@ function moveToLocation(targetSectorId, directionLabel) {
     }
 
     if (player.energy < moveEnergyCost) {
-        player.turnsLeft += 1;
-        addLog(`${player.name}: недостаточно энергии на перемещение.`, 'warning');
+        addLog(`${player.name}: недостаточно энергии на перемещение (требуется ${moveEnergyCost}).`, 'warning');
         return;
     }
 
+    const prevSectorName = getCurrentSector(player).name;
     player.money -= moveMoneyCost;
     player.positionId = targetSectorId;
     player.time -= moveTimeCost;
     player.energy = Math.max(0, player.energy - moveEnergyCost);
 
-    const newSector = getCurrentSector(player);
-    addLog(`${player.name} идет ${directionLabel}: "${currentSector.name}" -> "${newSector.name}" (-${moveMoneyCost} денег, -${moveTimeCost}ч, -${moveEnergyCost} энергии).`, 'positive');
+    const currentSector = getCurrentSector(player);
+    addLog(`${player.name} перемещается: "${prevSectorName}" → "${currentSector.name}" (расстояние: ${distance} клеток, -${moveEnergyCost} энергии, -${moveTimeCost}ч).`, 'positive');
+
     if (autoPassTurnIfNoTime()) {
         return;
     }
     renderStats();
     renderSectorInfo();
-}
-
-function moveToNextLocation() {
-    const player = getActivePlayer();
-    moveToLocation(getNextSectorId(player.positionId), 'вперед');
-}
-
-function moveToPrevLocation() {
-    const player = getActivePlayer();
-    moveToLocation(getPrevSectorId(player.positionId), 'назад');
-}
-
-function moveUpLocation() {
-    const player = getActivePlayer();
-    const upId = getUpSectorId(player.positionId);
-    if (upId === null) {
-        addLog(`${player.name}: выше перехода нет.`, 'warning');
-        return;
-    }
-    moveToLocation(upId, 'вверх');
-}
-
-function moveDownLocation() {
-    const player = getActivePlayer();
-    const downId = getDownSectorId(player.positionId);
-    if (downId === null) {
-        addLog(`${player.name}: ниже перехода нет.`, 'warning');
-        return;
-    }
-    moveToLocation(downId, 'вниз');
 }
 
 function renderSectorInfo() {
@@ -377,53 +374,31 @@ function renderSectorInfo() {
         return;
     }
 
-    const nextSector = getSectorById(getNextSectorId(player.positionId));
-    const prevSector = getSectorById(getPrevSectorId(player.positionId));
-    const upId = getUpSectorId(player.positionId);
-    const downId = getDownSectorId(player.positionId);
-    const upSector = upId ? getSectorById(upId) : null;
-    const downSector = downId ? getSectorById(downId) : null;
     const minSkillForWork = sector.minSkillForWork || 0;
 
     sectorInfoElement.innerHTML = `
         <h4>${sector.name}</h4>
         <p>Игрок: <strong>${player.name}</strong></p>
-        <p>Текущее место: <strong>#${sector.id}</strong></p>
-        <p>Маршрут: назад <strong>#${prevSector.id} ${prevSector.name}</strong> | вперед <strong>#${nextSector.id} ${nextSector.name}</strong></p>
-        <p>Вертикаль: вверх <strong>${upSector ? `#${upSector.id} ${upSector.name}` : 'нет перехода'}</strong> | вниз <strong>${downSector ? `#${downSector.id} ${downSector.name}` : 'нет перехода'}</strong></p>
-        <p>Фокус зоны: <strong>${sector.type}</strong></p>
         <div class="impact">
-            <span>Работа: +${predictWorkIncome(player, sector)} денег</span>
-            <span>Учеба: +${sector.studySkill} к навыку</span>
-            <span>Время: ${sector.workTime}ч / ${sector.studyTime}ч</span>
-            <span>Энергия: -${Math.max(0, sector.workEnergy)} / -${Math.max(0, sector.studyEnergy)}</span>
-            <span>Переход: -25 денег, -2ч и -4 энергии</span>
-            <span>Порог работы: ${minSkillForWork > 0 ? minSkillForWork.toFixed(1) : 'нет'}</span>
+            <p>Работа: +${predictWorkIncome(player, sector)} денег</p>
+            <p>Учеба: +${sector.studySkill} к навыку</p>
+            <p>Время: ${sector.workTime}ч</p>
+            <p>Энергия: -${Math.max(0, sector.workEnergy)}</p>
+            <p>Порог работы: ${minSkillForWork > 0 ? minSkillForWork.toFixed(1) : 'нет'}</p>
         </div>
         <div class="action-buttons">
-            <button id="moveBackButton" class="invest-button ghost" type="button">Перейти назад (1 ход)</button>
-            <button id="moveNextButton" class="invest-button" type="button">Перейти вперед (1 ход)</button>
-            <button id="moveUpButton" class="invest-button" type="button">Перейти вверх (1 ход)</button>
-            <button id="moveDownButton" class="invest-button" type="button">Перейти вниз (1 ход)</button>
-            <button id="workButton" class="invest-button action-work" type="button">Пойти работать (1 ход)</button>
-            <button id="studyButton" class="invest-button action-study" type="button">Получить образование (1 ход)</button>
+            <button id="workButton" class="invest-button action-work" type="button">💼 Работать</button>
+            <button id="studyButton" class="invest-button action-study" type="button">📚 Учиться</button>
         </div>
     `;
 
-    const moveBackButton = document.getElementById('moveBackButton');
-    const moveNextButton = document.getElementById('moveNextButton');
-    const moveUpButton = document.getElementById('moveUpButton');
-    const moveDownButton = document.getElementById('moveDownButton');
     const workButton = document.getElementById('workButton');
     const studyButton = document.getElementById('studyButton');
 
-    moveBackButton.addEventListener('click', moveToPrevLocation);
-    moveNextButton.addEventListener('click', moveToNextLocation);
-    moveUpButton.addEventListener('click', moveUpLocation);
-    moveDownButton.addEventListener('click', moveDownLocation);
     workButton.addEventListener('click', doWork);
     studyButton.addEventListener('click', doStudy);
 }
+
 
 function renderMapState() {
     const activePlayer = getActivePlayer();
@@ -526,7 +501,7 @@ function buyExtraTurn() {
     player.turnsLeft += 1;
     player.extraTurnPrice += 60;
 
-    addLog(`${player.name} покупает дополнительный ход.`, 'positive');
+    addLog(`${player.name} покупает дополнительный ход. ⭐`, 'positive');
     renderStats();
     renderSectorInfo();
 }
@@ -557,16 +532,30 @@ function resetGame() {
 }
 
 function buildMap() {
+    const typeIcons = {
+        work: '💼',
+        study: '📚',
+        mixed: '🎯',
+        network: '🤝',
+        rest: '🏖️'
+    };
+
     sectors.forEach((sector) => {
         const sectorElement = document.createElement('button');
         sectorElement.type = 'button';
         sectorElement.className = `sector type-${sector.type}`;
         sectorElement.dataset.id = String(sector.id);
+        const icon = typeIcons[sector.type] || '📍';
         sectorElement.innerHTML = `
-            <span class="sector-name">#${sector.id} ${sector.name}</span>
+            <span class="sector-icon">${icon}</span>
+            <span class="sector-name">${sector.name}</span>
             <span class="sector-meta">Работа: +${sector.workMoney} | Учеба: +${sector.studySkill}</span>
             <div class="player-markers"></div>
         `;
+
+        // Добавляем обработчик клика для перемещения
+        sectorElement.addEventListener('click', () => moveToSector(sector.id));
+
         mapElement.appendChild(sectorElement);
     });
 }
