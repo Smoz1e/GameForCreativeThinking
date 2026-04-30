@@ -36,7 +36,11 @@ const gameState = {
                 successfulEvents: 0,
                 boosts: {
                     businessPolice: false,
-                    itFreelance: false
+                    itFreelance: false,
+                    govIt: false,
+                    policeFreelance: false,
+                    businessIt: false,
+                    triadMastery: false
                 }
             }
         },
@@ -71,7 +75,11 @@ const gameState = {
                 successfulEvents: 0,
                 boosts: {
                     businessPolice: false,
-                    itFreelance: false
+                    itFreelance: false,
+                    govIt: false,
+                    policeFreelance: false,
+                    businessIt: false,
+                    triadMastery: false
                 }
             }
         },
@@ -106,7 +114,11 @@ const gameState = {
                 successfulEvents: 0,
                 boosts: {
                     businessPolice: false,
-                    itFreelance: false
+                    itFreelance: false,
+                    govIt: false,
+                    policeFreelance: false,
+                    businessIt: false,
+                    triadMastery: false
                 }
             }
         }
@@ -395,6 +407,43 @@ function applyHybridBoosts(player) {
         player.skill = Number((player.skill + 0.8).toFixed(2));
         player.perks.nextWorkIncomeBonus = (player.perks.nextWorkIncomeBonus || 0) + 0.15;
         addLog(`${player.name}: синергия "IT + Фриланс" — буст: +360 денег, +0.80 навыка, +15% к следующему доходу!`, 'positive');
+    }
+
+    // Гибрид "Гос + IT": цифровая трансформация.
+    if (!boosts.govIt && f.government >= 8 && f.it >= 8) {
+        boosts.govIt = true;
+        player.money += 300;
+        player.career += 2;
+        player.skill = Number((player.skill + 0.45).toFixed(2));
+        addLog(`${player.name}: синергия "Гос + IT" — цифровой буст: +300 денег, +2 к карьере, +0.45 к навыку!`, 'positive');
+    }
+
+    // Гибрид "Полиция + Фриланс": высокая адаптивность на задачах.
+    if (!boosts.policeFreelance && f.police >= 7 && f.freelance >= 9) {
+        boosts.policeFreelance = true;
+        player.money += 260;
+        player.energy = clamp(player.energy + 16, 0, 100);
+        player.perks.nextWorkIncomeBonus = (player.perks.nextWorkIncomeBonus || 0) + 0.12;
+        addLog(`${player.name}: синергия "Полиция + Фриланс" — тактический буст: +260 денег, +16 энергии, +12% к следующему доходу!`, 'positive');
+    }
+
+    // Гибрид "Бизнес + IT": продуктовый рывок.
+    if (!boosts.businessIt && f.business >= 10 && f.it >= 10) {
+        boosts.businessIt = true;
+        player.money += 500;
+        player.skill = Number((player.skill + 0.65).toFixed(2));
+        player.career += 1;
+        addLog(`${player.name}: синергия "Бизнес + IT" — продуктовый рывок: +500 денег, +0.65 навыка, +1 к карьере!`, 'positive');
+    }
+
+    // Тройная ротация: IT + Бизнес + Фриланс.
+    if (!boosts.triadMastery && f.it >= 11 && f.business >= 9 && f.freelance >= 9) {
+        boosts.triadMastery = true;
+        player.money += 700;
+        player.skill = Number((player.skill + 1.0).toFixed(2));
+        player.career += 2;
+        player.energy = clamp(player.energy + 10, 0, 100);
+        addLog(`${player.name}: тройная синергия "IT + Бизнес + Фриланс" — мегабуст: +700 денег, +1.00 навыка, +2 к карьере, +10 энергии!`, 'positive');
     }
 }
 
@@ -1005,6 +1054,8 @@ function applyDailyMaintenance(player) {
 }
 
 function nextPlayerTurn() {
+    eventLogElement.innerHTML = '';
+
     let nextIndex = (gameState.activePlayerIndex + 1) % gameState.players.length;
 
     if (nextIndex === gameState.dayStarterIndex) {
@@ -1077,7 +1128,11 @@ function resetGame() {
             successfulEvents: 0,
             boosts: {
                 businessPolice: false,
-                itFreelance: false
+                itFreelance: false,
+                govIt: false,
+                policeFreelance: false,
+                businessIt: false,
+                triadMastery: false
             }
         };
     });
