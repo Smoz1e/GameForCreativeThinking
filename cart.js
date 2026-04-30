@@ -2,6 +2,8 @@ const gameState = {
     day: 1,
     activePlayerIndex: 0,
     dayStarterIndex: 0,
+    winnerId: null,
+    winnerReason: '',
     players: [
         {
             id: 1,
@@ -15,7 +17,28 @@ const gameState = {
             studiedThisWeek: 0,
             turnsLeft: 1,
             extraTurnPrice: 120,
-            positionId: 1
+            positionId: 1,
+            trackId: null,
+            careerFocus: {
+                it: 0,
+                business: 0,
+                freelance: 0,
+                government: 0,
+                police: 0
+            },
+            perks: {
+                livingCostDiscount: 0,
+                nextWorkIncomeBonus: 0,
+                nextStudySkillBonus: 0
+            },
+            stats: {
+                eventsTriggered: 0,
+                successfulEvents: 0,
+                boosts: {
+                    businessPolice: false,
+                    itFreelance: false
+                }
+            }
         },
         {
             id: 2,
@@ -29,7 +52,28 @@ const gameState = {
             studiedThisWeek: 0,
             turnsLeft: 1,
             extraTurnPrice: 120,
-            positionId: 1
+            positionId: 1,
+            trackId: null,
+            careerFocus: {
+                it: 0,
+                business: 0,
+                freelance: 0,
+                government: 0,
+                police: 0
+            },
+            perks: {
+                livingCostDiscount: 0,
+                nextWorkIncomeBonus: 0,
+                nextStudySkillBonus: 0
+            },
+            stats: {
+                eventsTriggered: 0,
+                successfulEvents: 0,
+                boosts: {
+                    businessPolice: false,
+                    itFreelance: false
+                }
+            }
         },
         {
             id: 3,
@@ -43,37 +87,63 @@ const gameState = {
             studiedThisWeek: 0,
             turnsLeft: 1,
             extraTurnPrice: 120,
-            positionId: 1
+            positionId: 1,
+            trackId: null,
+            careerFocus: {
+                it: 0,
+                business: 0,
+                freelance: 0,
+                government: 0,
+                police: 0
+            },
+            perks: {
+                livingCostDiscount: 0,
+                nextWorkIncomeBonus: 0,
+                nextStudySkillBonus: 0
+            },
+            stats: {
+                eventsTriggered: 0,
+                successfulEvents: 0,
+                boosts: {
+                    businessPolice: false,
+                    itFreelance: false
+                }
+            }
         }
     ]
 };
 
 const sectors = [
-    { id: 1, name: 'Коворкинг', type: 'work', workMoney: 120, workTime: 8, workEnergy: 18, workSkill: 0.1, studyCost: 90, studyTime: 7, studyEnergy: 14, studySkill: 0.5 },
-    { id: 2, name: 'Колледж', type: 'study', workMoney: 70, workTime: 6, workEnergy: 12, workSkill: 0.05, studyCost: 70, studyTime: 8, studyEnergy: 16, studySkill: 0.8 },
-    { id: 3, name: 'IT-Офис', type: 'mixed', workMoney: 140, workTime: 9, workEnergy: 20, workSkill: 0.15, studyCost: 110, studyTime: 7, studyEnergy: 14, studySkill: 0.6, minSkillForWork: 2.2 },
-    { id: 4, name: 'Языковой Центр', type: 'study', workMoney: 60, workTime: 5, workEnergy: 11, workSkill: 0.04, studyCost: 60, studyTime: 6, studyEnergy: 12, studySkill: 0.7 },
-    { id: 5, name: 'Фриланс Площадка', type: 'work', workMoney: 100, workTime: 7, workEnergy: 16, workSkill: 0.08, studyCost: 85, studyTime: 6, studyEnergy: 12, studySkill: 0.45 },
-    { id: 6, name: 'Ментор Клуб', type: 'network', workMoney: 90, workTime: 6, workEnergy: 14, workSkill: 0.1, studyCost: 50, studyTime: 5, studyEnergy: 10, studySkill: 0.55 },
-    { id: 7, name: 'Университет', type: 'study', workMoney: 80, workTime: 6, workEnergy: 13, workSkill: 0.06, studyCost: 120, studyTime: 9, studyEnergy: 18, studySkill: 1.1 },
-    { id: 8, name: 'Бизнес-Инкубатор', type: 'mixed', workMoney: 130, workTime: 8, workEnergy: 17, workSkill: 0.14, studyCost: 95, studyTime: 7, studyEnergy: 13, studySkill: 0.65, minSkillForWork: 2.8 },
-    { id: 9, name: 'Продажи', type: 'work', workMoney: 135, workTime: 9, workEnergy: 21, workSkill: 0.09, studyCost: 75, studyTime: 6, studyEnergy: 11, studySkill: 0.4 },
-    { id: 10, name: 'Онлайн Курсы', type: 'study', workMoney: 65, workTime: 5, workEnergy: 10, workSkill: 0.03, studyCost: 40, studyTime: 4, studyEnergy: 8, studySkill: 0.5 },
-    { id: 11, name: 'Стажировка', type: 'mixed', workMoney: 85, workTime: 7, workEnergy: 14, workSkill: 0.2, studyCost: 60, studyTime: 6, studyEnergy: 12, studySkill: 0.7 },
-    { id: 12, name: 'Финансовая Школа', type: 'study', workMoney: 70, workTime: 5, workEnergy: 10, workSkill: 0.06, studyCost: 105, studyTime: 8, studyEnergy: 14, studySkill: 0.95 },
-    { id: 13, name: 'Партнерская Сеть', type: 'network', workMoney: 110, workTime: 7, workEnergy: 16, workSkill: 0.12, studyCost: 80, studyTime: 6, studyEnergy: 12, studySkill: 0.55 },
-    { id: 14, name: 'Проектная Лаба', type: 'mixed', workMoney: 125, workTime: 8, workEnergy: 18, workSkill: 0.18, studyCost: 100, studyTime: 7, studyEnergy: 13, studySkill: 0.8, minSkillForWork: 3.4 },
-    { id: 15, name: 'Карьерный Форум', type: 'network', workMoney: 95, workTime: 6, workEnergy: 13, workSkill: 0.11, studyCost: 55, studyTime: 5, studyEnergy: 9, studySkill: 0.45 },
-    { id: 16, name: 'Сервисный Центр', type: 'work', workMoney: 105, workTime: 8, workEnergy: 17, workSkill: 0.08, studyCost: 75, studyTime: 6, studyEnergy: 11, studySkill: 0.4 },
-    { id: 17, name: 'Data Academy', type: 'study', workMoney: 78, workTime: 5, workEnergy: 11, workSkill: 0.07, studyCost: 115, studyTime: 8, studyEnergy: 15, studySkill: 1.0 },
-    { id: 18, name: 'Стартап Хаб', type: 'mixed', workMoney: 145, workTime: 9, workEnergy: 21, workSkill: 0.2, studyCost: 120, studyTime: 8, studyEnergy: 15, studySkill: 0.85, minSkillForWork: 4.2 },
-    { id: 19, name: 'Нетворкинг Кафе', type: 'network', workMoney: 88, workTime: 6, workEnergy: 12, workSkill: 0.1, studyCost: 45, studyTime: 4, studyEnergy: 8, studySkill: 0.35 },
-    { id: 20, name: 'Гос. Портал Вакансий', type: 'work', workMoney: 115, workTime: 8, workEnergy: 16, workSkill: 0.1, studyCost: 50, studyTime: 5, studyEnergy: 9, studySkill: 0.3 },
-    { id: 21, name: 'MBA Центр', type: 'study', workMoney: 95, workTime: 6, workEnergy: 12, workSkill: 0.08, studyCost: 150, studyTime: 10, studyEnergy: 19, studySkill: 1.2 },
-    { id: 22, name: 'Медиа Агентство', type: 'mixed', workMoney: 128, workTime: 8, workEnergy: 17, workSkill: 0.13, studyCost: 85, studyTime: 6, studyEnergy: 12, studySkill: 0.55 },
-    { id: 23, name: 'Soft Skills Hub', type: 'study', workMoney: 72, workTime: 5, workEnergy: 10, workSkill: 0.05, studyCost: 65, studyTime: 6, studyEnergy: 11, studySkill: 0.7 },
-    { id: 24, name: 'HR Центр', type: 'work', workMoney: 118, workTime: 8, workEnergy: 16, workSkill: 0.09, studyCost: 70, studyTime: 5, studyEnergy: 10, studySkill: 0.42, minSkillForWork: 2.0 },
-    { id: 25, name: 'Парк Восстановления', type: 'rest', workMoney: 40, workTime: 3, workEnergy: -22, workSkill: 0.02, studyCost: 30, studyTime: 3, studyEnergy: -12, studySkill: 0.15 }
+    // cellCategory:
+    // - neutral: базовые клетки без событий при входе
+    // - event: событие при входе (риск/награда)
+    // - support: помощь (восстановление/бонусы)
+    // - balancing: баланс (налоги/штрафы/стабильность)
+    { id: 1, name: 'Коворкинг', type: 'work', cellCategory: 'neutral', workMoney: 120, workTime: 8, workEnergy: 18, workSkill: 0.1, studyCost: 90, studyTime: 7, studyEnergy: 14, studySkill: 0.5 },
+    { id: 2, name: 'Колледж', type: 'study', cellCategory: 'neutral', workMoney: 70, workTime: 6, workEnergy: 12, workSkill: 0.05, studyCost: 70, studyTime: 8, studyEnergy: 16, studySkill: 0.8 },
+    { id: 3, name: 'IT-Офис', type: 'mixed', cellCategory: 'balancing', workMoney: 140, workTime: 9, workEnergy: 20, workSkill: 0.15, studyCost: 110, studyTime: 7, studyEnergy: 14, studySkill: 0.6, minSkillForWork: 2.2, enterEffect: { kind: 'checkup', skillGateHint: true } },
+    { id: 4, name: 'Языковой Центр', type: 'study', cellCategory: 'neutral', workMoney: 60, workTime: 5, workEnergy: 11, workSkill: 0.04, studyCost: 60, studyTime: 6, studyEnergy: 12, studySkill: 0.7 },
+    { id: 5, name: 'Фриланс Площадка', type: 'work', cellCategory: 'event', workMoney: 100, workTime: 7, workEnergy: 16, workSkill: 0.08, studyCost: 85, studyTime: 6, studyEnergy: 12, studySkill: 0.45, enterEffect: { kind: 'freelanceBrief' } },
+    { id: 6, name: 'Ментор Клуб', type: 'network', cellCategory: 'support', workMoney: 90, workTime: 6, workEnergy: 14, workSkill: 0.1, studyCost: 50, studyTime: 5, studyEnergy: 10, studySkill: 0.55, enterEffect: { kind: 'mentorBoost' } },
+    { id: 7, name: 'Университет', type: 'study', cellCategory: 'neutral', workMoney: 80, workTime: 6, workEnergy: 13, workSkill: 0.06, studyCost: 120, studyTime: 9, studyEnergy: 18, studySkill: 1.1 },
+    { id: 8, name: 'Бизнес-Инкубатор', type: 'mixed', cellCategory: 'event', workMoney: 130, workTime: 8, workEnergy: 17, workSkill: 0.14, studyCost: 95, studyTime: 7, studyEnergy: 13, studySkill: 0.65, minSkillForWork: 2.8, enterEffect: { kind: 'pitchDay' } },
+    { id: 9, name: 'Продажи', type: 'work', cellCategory: 'balancing', workMoney: 135, workTime: 9, workEnergy: 21, workSkill: 0.09, studyCost: 75, studyTime: 6, studyEnergy: 11, studySkill: 0.4, enterEffect: { kind: 'pressure' } },
+    { id: 10, name: 'Онлайн Курсы', type: 'study', cellCategory: 'support', workMoney: 65, workTime: 5, workEnergy: 10, workSkill: 0.03, studyCost: 40, studyTime: 4, studyEnergy: 8, studySkill: 0.5, enterEffect: { kind: 'studyCoupon' } },
+    { id: 11, name: 'Стажировка', type: 'mixed', cellCategory: 'neutral', workMoney: 85, workTime: 7, workEnergy: 14, workSkill: 0.2, studyCost: 60, studyTime: 6, studyEnergy: 12, studySkill: 0.7 },
+    { id: 12, name: 'Финансовая Школа', type: 'study', cellCategory: 'support', workMoney: 70, workTime: 5, workEnergy: 10, workSkill: 0.06, studyCost: 105, studyTime: 8, studyEnergy: 14, studySkill: 0.95, enterEffect: { kind: 'budgeting' } },
+    { id: 13, name: 'Партнерская Сеть', type: 'network', cellCategory: 'event', workMoney: 110, workTime: 7, workEnergy: 16, workSkill: 0.12, studyCost: 80, studyTime: 6, studyEnergy: 12, studySkill: 0.55, enterEffect: { kind: 'referral' } },
+    { id: 14, name: 'Проектная Лаба', type: 'mixed', cellCategory: 'balancing', workMoney: 125, workTime: 8, workEnergy: 18, workSkill: 0.18, studyCost: 100, studyTime: 7, studyEnergy: 13, studySkill: 0.8, minSkillForWork: 3.4, enterEffect: { kind: 'deadline' } },
+    { id: 15, name: 'Карьерный Форум', type: 'network', cellCategory: 'event', workMoney: 95, workTime: 6, workEnergy: 13, workSkill: 0.11, studyCost: 55, studyTime: 5, studyEnergy: 9, studySkill: 0.45, enterEffect: { kind: 'jobOffer' } },
+    { id: 16, name: 'Сервисный Центр', type: 'work', cellCategory: 'balancing', workMoney: 105, workTime: 8, workEnergy: 17, workSkill: 0.08, studyCost: 75, studyTime: 6, studyEnergy: 11, studySkill: 0.4, enterEffect: { kind: 'stability' } },
+    { id: 17, name: 'Data Academy', type: 'study', cellCategory: 'neutral', workMoney: 78, workTime: 5, workEnergy: 11, workSkill: 0.07, studyCost: 115, studyTime: 8, studyEnergy: 15, studySkill: 1.0 },
+    { id: 18, name: 'Стартап Хаб', type: 'mixed', cellCategory: 'event', workMoney: 145, workTime: 9, workEnergy: 21, workSkill: 0.2, studyCost: 120, studyTime: 8, studyEnergy: 15, studySkill: 0.85, minSkillForWork: 4.2, enterEffect: { kind: 'startupRoll' } },
+    { id: 19, name: 'Нетворкинг Кафе', type: 'network', cellCategory: 'support', workMoney: 88, workTime: 6, workEnergy: 12, workSkill: 0.1, studyCost: 45, studyTime: 4, studyEnergy: 8, studySkill: 0.35, enterEffect: { kind: 'coffeeChat' } },
+    { id: 20, name: 'Госслужба', type: 'work', cellCategory: 'balancing', workMoney: 115, workTime: 8, workEnergy: 16, workSkill: 0.1, studyCost: 50, studyTime: 5, studyEnergy: 9, studySkill: 0.3, enterEffect: { kind: 'taxCheck' } },
+    { id: 21, name: 'Полицейская Академия', type: 'study', cellCategory: 'balancing', workMoney: 95, workTime: 6, workEnergy: 12, workSkill: 0.08, studyCost: 140, studyTime: 9, studyEnergy: 18, studySkill: 1.15, enterEffect: { kind: 'disciplineDrill' } },
+    { id: 22, name: 'Медиа Агентство', type: 'mixed', cellCategory: 'neutral', workMoney: 128, workTime: 8, workEnergy: 17, workSkill: 0.13, studyCost: 85, studyTime: 6, studyEnergy: 12, studySkill: 0.55 },
+    { id: 23, name: 'Soft Skills Hub', type: 'study', cellCategory: 'support', workMoney: 72, workTime: 5, workEnergy: 10, workSkill: 0.05, studyCost: 65, studyTime: 6, studyEnergy: 11, studySkill: 0.7, enterEffect: { kind: 'confidence' } },
+    { id: 24, name: 'HR Центр', type: 'work', cellCategory: 'event', workMoney: 118, workTime: 8, workEnergy: 16, workSkill: 0.09, studyCost: 70, studyTime: 5, studyEnergy: 10, studySkill: 0.42, minSkillForWork: 2.0, enterEffect: { kind: 'interview' } },
+    { id: 25, name: 'Парк Восстановления', type: 'rest', cellCategory: 'support', workMoney: 40, workTime: 3, workEnergy: -22, workSkill: 0.02, studyCost: 30, studyTime: 3, studyEnergy: -12, studySkill: 0.15, enterEffect: { kind: 'recovery' } }
 ];
 
 const mapElement = document.getElementById('cityMap');
@@ -97,8 +167,107 @@ const buyTurnButton = document.getElementById('buyTurnButton');
 const resetButton = document.getElementById('resetButton');
 const MAP_SIZE = 5;
 
+const careerTracks = [
+    {
+        id: 'it',
+        name: 'IT‑карьера',
+        description: 'Больше учёбы, высокий доход позже.',
+        workIncomeMultiplier: 1.0,
+        studySkillMultiplier: 1.25,
+        studyCostMultiplier: 1.05,
+        eventLuck: 0
+    },
+    {
+        id: 'business',
+        name: 'Бизнес‑путь',
+        description: 'Меньше формального обучения, выше риск, доход нестабильный.',
+        workIncomeMultiplier: 1.12,
+        studySkillMultiplier: 0.95,
+        studyCostMultiplier: 0.95,
+        eventLuck: 1
+    },
+    {
+        id: 'freelance',
+        name: 'Фриланс‑путь',
+        description: 'Гибкость, средний доход, зависит от навыков.',
+        workIncomeMultiplier: 1.02,
+        studySkillMultiplier: 1.05,
+        studyCostMultiplier: 1.0,
+        eventLuck: 0
+    },
+    {
+        id: 'stable',
+        name: 'Стабильная карьера',
+        description: 'Меньше риска, плавный рост.',
+        workIncomeMultiplier: 0.98,
+        studySkillMultiplier: 1.0,
+        studyCostMultiplier: 0.98,
+        eventLuck: -1
+    }
+];
+
+const winConditions = [
+    {
+        id: 'financialFreedom',
+        title: 'Финансовая независимость',
+        description: 'Накопить 5000 денег.',
+        check: (player) => player.money >= 5000
+    },
+    {
+        id: 'expert',
+        title: 'Экспертность',
+        description: 'Навык 10.0+ и карьерный уровень 20+.',
+        check: (player) => player.skill >= 10 && player.career >= 20
+    },
+    {
+        id: 'topCareer',
+        title: 'Топ‑карьера',
+        description: 'Карьерный уровень 35+ и деньги 3000+.',
+        check: (player) => player.career >= 35 && player.money >= 3000
+    },
+    {
+        id: 'balancedLife',
+        title: 'Сбалансированная жизнь',
+        description: 'Деньги 2500+, навык 8.0+, энергия 70+.',
+        check: (player) => player.money >= 2500 && player.skill >= 8 && player.energy >= 70
+    },
+    {
+        id: 'entrepreneur',
+        title: 'Предприниматель',
+        description: 'Сделать 3+ успешных событий и иметь 3500+ денег.',
+        check: (player) => (player.stats?.successfulEvents || 0) >= 3 && player.money >= 3500
+    }
+];
+
 function getActivePlayer() {
     return gameState.players[gameState.activePlayerIndex];
+}
+
+function getTrack(player) {
+    if (!player.trackId) {
+        return null;
+    }
+    return careerTracks.find((track) => track.id === player.trackId) || null;
+}
+
+function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, value));
+}
+
+function setWinner(player, reason) {
+    gameState.winnerId = player.id;
+    gameState.winnerReason = reason;
+    addLog(`Победа! ${player.name}: ${reason}`, 'positive');
+}
+
+function checkWin(player) {
+    if (gameState.winnerId) {
+        return;
+    }
+    const matched = winConditions.find((condition) => condition.check(player, gameState));
+    if (matched) {
+        setWinner(player, `${matched.title} — ${matched.description}`);
+    }
 }
 
 function addLog(message, type = '') {
@@ -155,7 +324,305 @@ function getDistanceBetweenSectors(fromId, toId) {
 function predictWorkIncome(player, sector) {
     const skillFactor = 1 + player.skill * 0.15;
     const careerFactor = 1 + player.career * 0.06;
-    return Math.round(sector.workMoney * skillFactor * careerFactor);
+    const track = getTrack(player);
+    const trackFactor = track ? track.workIncomeMultiplier : 1;
+    const perkBonus = player.perks?.nextWorkIncomeBonus ? 1 + player.perks.nextWorkIncomeBonus : 1;
+    return Math.round(sector.workMoney * skillFactor * careerFactor * trackFactor * perkBonus);
+}
+
+function ensureCareerFocus(player) {
+    if (!player.careerFocus) {
+        player.careerFocus = { it: 0, business: 0, freelance: 0, government: 0, police: 0 };
+    }
+}
+
+function getSectorDomainWeights(sector) {
+    const weights = { it: 0, business: 0, freelance: 0, government: 0, police: 0 };
+    const name = sector.name.toLowerCase();
+
+    if (name.includes('it') || name.includes('data') || name.includes('soft') || name.includes('онлайн')) {
+        weights.it += 1;
+    }
+    if (name.includes('бизнес') || name.includes('финансов') || name.includes('стартап') || name.includes('продаж') || name.includes('mba')) {
+        weights.business += 1;
+    }
+    if (name.includes('фриланс') || name.includes('коворкинг') || name.includes('медиа')) {
+        weights.freelance += 1;
+    }
+    if (name.includes('гос') || name.includes('hr') || name.includes('сервис')) {
+        weights.government += 1;
+    }
+    if (name.includes('полиц')) {
+        weights.police += 2;
+        weights.government += 1;
+    }
+
+    return weights;
+}
+
+function resolveTrackByFocus(player) {
+    const f = player.careerFocus;
+    const scores = [
+        { id: 'it', score: f.it * 1.2 + f.freelance * 0.4 },
+        { id: 'business', score: f.business * 1.15 + f.government * 0.2 },
+        { id: 'freelance', score: f.freelance * 1.2 + f.it * 0.35 },
+        { id: 'stable', score: f.government * 1.1 + f.police * 0.9 }
+    ];
+    scores.sort((a, b) => b.score - a.score);
+    return scores[0].score > 0 ? scores[0].id : null;
+}
+
+function applyHybridBoosts(player) {
+    const boosts = player.stats?.boosts;
+    if (!boosts) {
+        return;
+    }
+    const f = player.careerFocus;
+
+    // Гибрид "бизнес + полиция": при среднем развитии обоих направлений.
+    if (!boosts.businessPolice && f.business >= 8 && f.police >= 8) {
+        boosts.businessPolice = true;
+        player.money += 420;
+        player.career += 2;
+        player.energy = clamp(player.energy + 12, 0, 100);
+        addLog(`${player.name}: синергия "Бизнес + Полиция" — внезапный буст: +420 денег, +2 к карьере, +12 энергии!`, 'positive');
+    }
+
+    // Гибрид "IT + Фриланс": ускоренный рост в проектной точке.
+    if (!boosts.itFreelance && f.it >= 9 && f.freelance >= 9) {
+        boosts.itFreelance = true;
+        player.money += 360;
+        player.skill = Number((player.skill + 0.8).toFixed(2));
+        player.perks.nextWorkIncomeBonus = (player.perks.nextWorkIncomeBonus || 0) + 0.15;
+        addLog(`${player.name}: синергия "IT + Фриланс" — буст: +360 денег, +0.80 навыка, +15% к следующему доходу!`, 'positive');
+    }
+}
+
+function registerCareerProgress(player, sector, actionType) {
+    ensureCareerFocus(player);
+    const weights = getSectorDomainWeights(sector);
+    const actionFactor = actionType === 'study' ? 2 : actionType === 'work' ? 2 : 1;
+
+    Object.keys(weights).forEach((key) => {
+        const gain = weights[key] * actionFactor;
+        if (gain > 0) {
+            player.careerFocus[key] += gain;
+        }
+    });
+
+    player.trackId = resolveTrackByFocus(player);
+    applyHybridBoosts(player);
+}
+
+function getCategoryLabel(cellCategory) {
+    switch (cellCategory) {
+        case 'neutral':
+            return 'Нейтр.';
+        case 'event':
+            return 'Событие';
+        case 'support':
+            return 'Помощь';
+        case 'balancing':
+            return 'Баланс';
+        default:
+            return 'Клетка';
+    }
+}
+
+function roll(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function applyEnterEffect(player, sector) {
+    if (!sector?.enterEffect || gameState.winnerId) {
+        return;
+    }
+
+    const effect = sector.enterEffect;
+    const track = getTrack(player);
+    const luck = track ? track.eventLuck : 0;
+
+    const logSuccess = (text) => {
+        if (player.stats) {
+            player.stats.eventsTriggered += 1;
+            player.stats.successfulEvents += 1;
+        }
+        addLog(`${player.name}: событие — ${text}`, 'positive');
+    };
+    const logFail = (text) => {
+        if (player.stats) {
+            player.stats.eventsTriggered += 1;
+        }
+        addLog(`${player.name}: событие — ${text}`, 'warning');
+    };
+
+    switch (effect.kind) {
+        case 'recovery': {
+            const energyGain = 18;
+            const timeGain = 2;
+            player.energy = clamp(player.energy + energyGain, 0, 100);
+            player.time = clamp(player.time + timeGain, 0, 24);
+            addLog(`${player.name}: восстановление в парке: +${energyGain} энергии, +${timeGain}ч времени.`, 'positive');
+            return;
+        }
+        case 'mentorBoost': {
+            const bonus = 0.25;
+            player.perks.nextStudySkillBonus = (player.perks.nextStudySkillBonus || 0) + bonus;
+            addLog(`${player.name}: менторская сессия — следующий “Учиться” даст +${Math.round(bonus * 100)}% навыка.`, 'positive');
+            return;
+        }
+        case 'studyCoupon': {
+            const bonusMoney = 15;
+            player.money += bonusMoney;
+            addLog(`${player.name}: промокод — +${bonusMoney} денег (на будущую учёбу).`, 'positive');
+            return;
+        }
+        case 'budgeting': {
+            const discount = 12;
+            player.perks.livingCostDiscount = (player.perks.livingCostDiscount || 0) + discount;
+            addLog(`${player.name}: финплан — скидка -${discount} к ежедневным расходам (1 раз).`, 'positive');
+            return;
+        }
+        case 'coffeeChat': {
+            const energyGain = 8;
+            player.energy = clamp(player.energy + energyGain, 0, 100);
+            player.perks.nextWorkIncomeBonus = (player.perks.nextWorkIncomeBonus || 0) + 0.08;
+            addLog(`${player.name}: полезный разговор — +${energyGain} энергии и +8% к следующему доходу от работы.`, 'positive');
+            return;
+        }
+        case 'confidence': {
+            const skillGain = 0.15;
+            player.skill = Number((player.skill + skillGain).toFixed(2));
+            addLog(`${player.name}: уверенность — +${skillGain.toFixed(2)} к навыку.`, 'positive');
+            return;
+        }
+        case 'stability': {
+            const discount = 10;
+            player.perks.livingCostDiscount = (player.perks.livingCostDiscount || 0) + discount;
+            addLog(`${player.name}: стабильность — -${discount} к ежедневным расходам (1 раз).`, 'positive');
+            return;
+        }
+        case 'taxCheck': {
+            const tax = 25;
+            player.money = Math.max(0, player.money - tax);
+            addLog(`${player.name}: проверка — -${tax} денег.`, 'warning');
+            return;
+        }
+        case 'pressure': {
+            const loss = 6;
+            player.energy = clamp(player.energy - loss, 0, 100);
+            addLog(`${player.name}: давление KPI — -${loss} энергии.`, 'warning');
+            return;
+        }
+        case 'deadline': {
+            const timeLoss = 2;
+            player.time = clamp(player.time - timeLoss, 0, 24);
+            addLog(`${player.name}: дедлайн — -${timeLoss}ч времени.`, 'warning');
+            return;
+        }
+        case 'burnoutRisk': {
+            if (player.energy >= 80) {
+                logSuccess('фокус: +0.20 к навыку.');
+                player.skill = Number((player.skill + 0.2).toFixed(2));
+            } else {
+                logFail('перегруз: -12 энергии.');
+                player.energy = clamp(player.energy - 12, 0, 100);
+            }
+            return;
+        }
+        case 'disciplineDrill': {
+            const skillGain = 0.12;
+            const energyLoss = 4;
+            player.skill = Number((player.skill + skillGain).toFixed(2));
+            player.energy = clamp(player.energy - energyLoss, 0, 100);
+            addLog(`${player.name}: полицейская подготовка — +${skillGain.toFixed(2)} к навыку и -${energyLoss} энергии.`, 'positive');
+            return;
+        }
+        case 'jobOffer': {
+            const threshold = 2 + luck * 0.2;
+            if (player.skill >= threshold) {
+                const bonus = 120 + roll(0, 80);
+                logSuccess(`оффер на форуме: +${bonus} денег.`);
+                player.money += bonus;
+            } else {
+                logFail('отказы: -6 энергии.');
+                player.energy = clamp(player.energy - 6, 0, 100);
+            }
+            return;
+        }
+        case 'referral': {
+            const chance = roll(1, 6) + luck;
+            if (chance >= 5) {
+                const bonus = 90 + roll(0, 60);
+                logSuccess(`реферальный бонус: +${bonus} денег.`);
+                player.money += bonus;
+            } else {
+                logFail('без результата: -1ч времени.');
+                player.time = clamp(player.time - 1, 0, 24);
+            }
+            return;
+        }
+        case 'interview': {
+            const chance = roll(1, 6) + luck + (player.skill >= 3 ? 1 : 0);
+            if (chance >= 5) {
+                const bonus = 160 + roll(0, 80);
+                logSuccess(`успешное интервью: +${bonus} денег и +1 к карьере.`);
+                player.money += bonus;
+                player.career += 1;
+            } else {
+                logFail('неудача: -10 энергии.');
+                player.energy = clamp(player.energy - 10, 0, 100);
+            }
+            return;
+        }
+        case 'startupRoll': {
+            const chance = roll(1, 6) + luck;
+            if (chance >= 5) {
+                const bonus = 240 + roll(0, 160);
+                logSuccess(`рост стартапа: +${bonus} денег и +0.30 к навыку.`);
+                player.money += bonus;
+                player.skill = Number((player.skill + 0.3).toFixed(2));
+            } else {
+                const loss = 110 + roll(0, 90);
+                logFail(`потери: -${loss} денег.`);
+                player.money = Math.max(0, player.money - loss);
+            }
+            return;
+        }
+        case 'pitchDay': {
+            const chance = roll(1, 6) + luck + (player.skill >= 2.5 ? 1 : 0);
+            if (chance >= 5) {
+                const bonus = 180 + roll(0, 120);
+                logSuccess(`питч удался: +${bonus} денег.`);
+                player.money += bonus;
+            } else {
+                logFail('питч провалился: -5 энергии и -1ч времени.');
+                player.energy = clamp(player.energy - 5, 0, 100);
+                player.time = clamp(player.time - 1, 0, 24);
+            }
+            return;
+        }
+        case 'freelanceBrief': {
+            const chance = roll(1, 6) + luck + (player.skill >= 2 ? 1 : 0);
+            if (chance >= 4) {
+                const bonus = 90 + roll(0, 90);
+                logSuccess(`нашёлся заказ: +${bonus} денег.`);
+                player.money += bonus;
+            } else {
+                logFail('переговоры сорвались: -4 энергии.');
+                player.energy = clamp(player.energy - 4, 0, 100);
+            }
+            return;
+        }
+        case 'checkup': {
+            if (effect.skillGateHint && sector.minSkillForWork) {
+                addLog(`${player.name}: заметка — для работы тут нужен навык ${sector.minSkillForWork.toFixed(1)}.`, 'warning');
+            }
+            return;
+        }
+        default:
+            return;
+    }
 }
 
 function renderPlayersBoard() {
@@ -227,6 +694,11 @@ function doWork() {
         return;
     }
 
+    if (gameState.winnerId) {
+        addLog(`Игра завершена: победил игрок #${gameState.winnerId}.`, 'warning');
+        return;
+    }
+
     if (!consumeTurn(player)) {
         return;
     }
@@ -261,8 +733,13 @@ function doWork() {
     player.skill = Number((player.skill + sector.workSkill).toFixed(2));
     player.career += 1;
     player.workedThisWeek += 1;
+    registerCareerProgress(player, sector, 'work');
+    if (player.perks?.nextWorkIncomeBonus) {
+        player.perks.nextWorkIncomeBonus = 0;
+    }
 
     addLog(`${player.name} работает в "${sector.name}": +${income} денег.`, 'positive');
+    checkWin(player);
     if (autoPassTurnIfNoTime()) {
         return;
     }
@@ -277,11 +754,19 @@ function doStudy() {
         return;
     }
 
+    if (gameState.winnerId) {
+        addLog(`Игра завершена: победил игрок #${gameState.winnerId}.`, 'warning');
+        return;
+    }
+
     if (!consumeTurn(player)) {
         return;
     }
 
-    if (player.money < sector.studyCost) {
+    const track = getTrack(player);
+    const cost = Math.round(sector.studyCost * (track ? track.studyCostMultiplier : 1));
+
+    if (player.money < cost) {
         player.turnsLeft += 1;
         addLog(`${player.name}: недостаточно денег для учебы в "${sector.name}".`, 'warning');
         return;
@@ -302,14 +787,23 @@ function doStudy() {
         return;
     }
 
-    player.money -= sector.studyCost;
+    const perkSkill = player.perks?.nextStudySkillBonus ? 1 + player.perks.nextStudySkillBonus : 1;
+    const baseSkillGain = sector.studySkill * (track ? track.studySkillMultiplier : 1) * perkSkill;
+    const skillGain = Number(baseSkillGain.toFixed(2));
+
+    player.money -= cost;
     player.time -= sector.studyTime;
     player.energy = Math.max(0, Math.min(100, player.energy - sector.studyEnergy));
-    player.skill = Number((player.skill + sector.studySkill).toFixed(2));
+    player.skill = Number((player.skill + skillGain).toFixed(2));
     player.career += 2;
     player.studiedThisWeek += 1;
+    registerCareerProgress(player, sector, 'study');
+    if (player.perks?.nextStudySkillBonus) {
+        player.perks.nextStudySkillBonus = 0;
+    }
 
-    addLog(`${player.name} учится в "${sector.name}": -${sector.studyCost} денег, +${sector.studySkill.toFixed(2)} к навыку.`, 'positive');
+    addLog(`${player.name} учится в "${sector.name}": -${cost} денег, +${skillGain.toFixed(2)} к навыку.`, 'positive');
+    checkWin(player);
     if (autoPassTurnIfNoTime()) {
         return;
     }
@@ -320,6 +814,11 @@ function doStudy() {
 function moveToSector(sectorId) {
     const player = getActivePlayer();
     const targetSectorId = parseInt(sectorId);
+
+    if (gameState.winnerId) {
+        addLog(`Игра завершена: победил игрок #${gameState.winnerId}.`, 'warning');
+        return;
+    }
 
     if (player.positionId === targetSectorId) {
         addLog(`${player.name}: вы уже находитесь в "${getCurrentSector(player).name}".`, 'warning');
@@ -359,6 +858,9 @@ function moveToSector(sectorId) {
 
     const currentSector = getCurrentSector(player);
     addLog(`${player.name} перемещается: "${prevSectorName}" → "${currentSector.name}" (расстояние: ${distance} клеток, -${moveEnergyCost} энергии, -${moveTimeCost}ч).`, 'positive');
+    registerCareerProgress(player, currentSector, 'move');
+    applyEnterEffect(player, currentSector);
+    checkWin(player);
 
     if (autoPassTurnIfNoTime()) {
         return;
@@ -375,20 +877,43 @@ function renderSectorInfo() {
     }
 
     const minSkillForWork = sector.minSkillForWork || 0;
+    const track = getTrack(player);
+    const selectedTrackLabel = track ? `${track.name} (авто)` : 'формируется по вашим клеткам';
+    const categoryLabel = getCategoryLabel(sector.cellCategory);
+    const winText = gameState.winnerId
+        ? `<div class="win-banner"><strong>Игра завершена.</strong> Победил игрок #${gameState.winnerId}.<br><span>${gameState.winnerReason}</span></div>`
+        : '';
+    const studyPreview = (
+        sector.studySkill
+        * (track ? track.studySkillMultiplier : 1)
+        * (player.perks?.nextStudySkillBonus ? 1 + player.perks.nextStudySkillBonus : 1)
+    ).toFixed(2);
 
     sectorInfoElement.innerHTML = `
         <h4>${sector.name}</h4>
         <p>Игрок: <strong>${player.name}</strong></p>
+        ${winText}
+        <div class="track-panel">
+            <p>Карьерный путь: <strong>${selectedTrackLabel}</strong></p>
+            <p class="track-note">Путь определяется автоматически по клеткам, где вы работаете и учитесь.</p>
+        </div>
         <div class="impact">
+            <p>Категория: <strong>${categoryLabel}</strong></p>
             <p>Работа: +${predictWorkIncome(player, sector)} денег</p>
-            <p>Учеба: +${sector.studySkill} к навыку</p>
+            <p>Учеба: +${studyPreview} к навыку</p>
             <p>Время: ${sector.workTime}ч</p>
             <p>Энергия: -${Math.max(0, sector.workEnergy)}</p>
             <p>Порог работы: ${minSkillForWork > 0 ? minSkillForWork.toFixed(1) : 'нет'}</p>
         </div>
         <div class="action-buttons">
-            <button id="workButton" class="invest-button action-work" type="button">💼 Работать</button>
-            <button id="studyButton" class="invest-button action-study" type="button">📚 Учиться</button>
+            <button id="workButton" class="invest-button action-work" type="button" ${gameState.winnerId ? 'disabled' : ''}>💼 Работать</button>
+            <button id="studyButton" class="invest-button action-study" type="button" ${gameState.winnerId ? 'disabled' : ''}>📚 Учиться</button>
+        </div>
+        <div class="win-conditions">
+            <h5>Победа (любое условие)</h5>
+            <ul>
+                ${winConditions.map((c) => `<li><strong>${c.title}</strong>: ${c.description}</li>`).join('')}
+            </ul>
         </div>
     `;
 
@@ -444,7 +969,12 @@ function renderMapState() {
 
 function applyDailyMaintenance(player) {
     const livingCost = 35 + Math.round(player.career * 0.6);
-    player.money -= livingCost;
+    const discount = player.perks?.livingCostDiscount ? player.perks.livingCostDiscount : 0;
+    const finalCost = Math.max(0, livingCost - discount);
+    player.money -= finalCost;
+    if (player.perks) {
+        player.perks.livingCostDiscount = 0;
+    }
 
     if (player.studiedThisWeek === 0) {
         player.skill = Number(Math.max(1, player.skill - 0.05).toFixed(2));
@@ -470,7 +1000,8 @@ function applyDailyMaintenance(player) {
     player.turnsLeft = 1;
     player.extraTurnPrice = 120;
 
-    addLog(`${player.name}: ежедневные расходы ${livingCost}, ресурсы обновлены.`);
+    addLog(`${player.name}: ежедневные расходы ${finalCost}${discount ? ` (скидка ${discount})` : ''}, ресурсы обновлены.`);
+    checkWin(player);
 }
 
 function nextPlayerTurn() {
@@ -492,6 +1023,10 @@ function nextPlayerTurn() {
 
 function buyExtraTurn() {
     const player = getActivePlayer();
+    if (gameState.winnerId) {
+        addLog(`Игра завершена: победил игрок #${gameState.winnerId}.`, 'warning');
+        return;
+    }
     if (player.money < player.extraTurnPrice) {
         addLog(`${player.name}: не хватает денег на покупку хода.`, 'warning');
         return;
@@ -510,6 +1045,8 @@ function resetGame() {
     gameState.day = 1;
     gameState.activePlayerIndex = 0;
     gameState.dayStarterIndex = 0;
+    gameState.winnerId = null;
+    gameState.winnerReason = '';
 
     gameState.players.forEach((player) => {
         player.money = 900;
@@ -522,6 +1059,27 @@ function resetGame() {
         player.turnsLeft = 1;
         player.extraTurnPrice = 120;
         player.positionId = 1;
+        player.trackId = null;
+        player.careerFocus = {
+            it: 0,
+            business: 0,
+            freelance: 0,
+            government: 0,
+            police: 0
+        };
+        player.perks = {
+            livingCostDiscount: 0,
+            nextWorkIncomeBonus: 0,
+            nextStudySkillBonus: 0
+        };
+        player.stats = {
+            eventsTriggered: 0,
+            successfulEvents: 0,
+            boosts: {
+                businessPolice: false,
+                itFreelance: false
+            }
+        };
     });
 
     eventLogElement.innerHTML = '';
@@ -543,13 +1101,15 @@ function buildMap() {
     sectors.forEach((sector) => {
         const sectorElement = document.createElement('button');
         sectorElement.type = 'button';
-        sectorElement.className = `sector type-${sector.type}`;
+        sectorElement.className = `sector type-${sector.type} category-${sector.cellCategory || 'neutral'}`;
         sectorElement.dataset.id = String(sector.id);
         const icon = typeIcons[sector.type] || '📍';
+        const categoryBadge = sector.cellCategory ? getCategoryLabel(sector.cellCategory) : '';
         sectorElement.innerHTML = `
             <span class="sector-icon">${icon}</span>
             <span class="sector-name">${sector.name}</span>
             <span class="sector-meta">Работа: +${sector.workMoney} | Учеба: +${sector.studySkill}</span>
+            ${categoryBadge ? `<span class="sector-badge">${categoryBadge}</span>` : ''}
             <div class="player-markers"></div>
         `;
 
