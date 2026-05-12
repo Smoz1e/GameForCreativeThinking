@@ -15,7 +15,7 @@
 				<p class="subtitle">Создайте профиль, чтобы войти в сессию и начать игру.</p>
 			</div>
 
-			<form class="register-form" method="post" action="/cart">
+			<form class="register-form" id="registerForm">
 				<label class="field">
 					<span>Имя</span>
 					<input type="text" name="name" placeholder="Введите имя" autocomplete="name" required>
@@ -26,24 +26,76 @@
 					<input type="text" name="session_key" placeholder="Введите ключ сессии" autocomplete="off" required>
 				</label>
 
-				<button type="submit" class="primary-button">Зарегистрироваться</button>
+				<button type="submit" class="primary-button" id="registerButton">Зарегистрироваться</button>
 				<button type="button" class="secondary-button" id="createGameButton">Создать игру</button>
 			</form>
 		</section>
 	</main>
 	<script>
+		const registerForm = document.getElementById('registerForm');
+		const registerButton = document.getElementById('registerButton');
 		const createGameButton = document.getElementById('createGameButton');
 		const sessionKeyLabel = document.getElementById('sessionKeyLabel');
-		const defaultButtonText = 'Создать игру';
-		const joinedButtonText = 'Присоедениться к игре';
-		const defaultLabelText = 'Ключь к сесии';
-		const joinedLabelText = 'Придумай ключь к сессии';
+		const sessionKeyInput = registerForm.querySelector('input[name="session_key"]');
+		const joinModeButtonText = 'Создать игру';
+		const createModeButtonText = 'Присоедениться к игре';
+		const joinModeLabelText = 'Ключь к сесии';
+		const createModeLabelText = 'Придумай ключь к сессии';
+		const registerEndpoint = '/api/games/create';
+		const joinEndpoint = '/api/games/join';
+
+		function setMode(mode) {
+			const isJoinMode = mode === 'join';
+
+			registerForm.dataset.mode = mode;
+			createGameButton.textContent = isJoinMode ? joinModeButtonText : 'Вернуться к присоединению';
+			sessionKeyLabel.textContent = isJoinMode ? joinModeLabelText : createModeLabelText;
+			sessionKeyInput.required = isJoinMode;
+			sessionKeyInput.value = '';
+			sessionKeyInput.placeholder = isJoinMode ? 'Введите ключ сессии' : 'Ключ будет создан автоматически';
+			registerButton.textContent = isJoinMode ? 'Присоедениться к игре' : 'Создать игру';
+		}
 
 		createGameButton.addEventListener('click', () => {
-			const isJoinedState = createGameButton.textContent === joinedButtonText;
+			setMode(registerForm.dataset.mode === 'join' ? 'create' : 'join');
+		});
 
-			createGameButton.textContent = isJoinedState ? defaultButtonText : joinedButtonText;
-			sessionKeyLabel.textContent = isJoinedState ? defaultLabelText : joinedLabelText;
+		setMode('join');
+
+		registerForm.addEventListener('submit', async (event) => {
+			event.preventDefault();
+
+			const formData = new FormData(registerForm);
+			const name = String(formData.get('name') || '').trim();
+			const sessionKey = String(formData.get('session_key') || '').trim();
+			const mode = registerForm.dataset.mode || 'create';
+
+			if (!name) {
+				return;
+			}
+
+			const payload = mode === 'join'
+				? { username: name, game_key: sessionKey }
+				: { owner_name: name };
+
+			const response = await fetch(mode === 'join' ? joinEndpoint : registerEndpoint, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(payload),
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json().catch(() => ({}));
+				alert(errorData.detail || 'Не удалось создать или присоединиться к игре');
+				return;
+			}
+
+			const result = await response.json();
+			localStorage.setItem('game_key', result.game_key);
+			localStorage.setItem('player_name', name);
+			window.location.href = '/cart';
 		});
 	</script>
 </body>

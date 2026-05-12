@@ -2,59 +2,16 @@ const gameState = {
     day: 1,
     activePlayerIndex: 0,
     dayStarterIndex: 0,
-    players: [
-        {
-            id: 1,
-            name: 'Игрок 1',
-            money: 900,
-            time: 24,
-            energy: 100,
-            skill: 1,
-            career: 0,
-            workedThisWeek: 0,
-            studiedThisWeek: 0,
-            turnsLeft: 1,
-            extraTurnPrice: 120,
-            positionId: 1
-        },
-        {
-            id: 2,
-            name: 'Игрок 2',
-            money: 900,
-            time: 24,
-            energy: 100,
-            skill: 1,
-            career: 0,
-            workedThisWeek: 0,
-            studiedThisWeek: 0,
-            turnsLeft: 1,
-            extraTurnPrice: 120,
-            positionId: 1
-        },
-        {
-            id: 3,
-            name: 'Игрок 3',
-            money: 900,
-            time: 24,
-            energy: 100,
-            skill: 1,
-            career: 0,
-            workedThisWeek: 0,
-            studiedThisWeek: 0,
-            turnsLeft: 1,
-            extraTurnPrice: 120,
-            positionId: 1
-        }
-    ]
+    players: [],
 };
 
 const sectors = [
-    { id: 1, name: 'Коворкинг', type: 'work', workMoney: 120, workTime: 8, workEnergy: 18, workSkill: 0.1, studyCost: 90, studyTime: 7, studyEnergy: 14, studySkill: 0.5 },
-    { id: 2, name: 'Колледж', type: 'study', workMoney: 70, workTime: 6, workEnergy: 12, workSkill: 0.05, studyCost: 70, studyTime: 8, studyEnergy: 16, studySkill: 0.8 },
-    { id: 3, name: 'IT-Офис', type: 'mixed', workMoney: 140, workTime: 9, workEnergy: 20, workSkill: 0.15, studyCost: 110, studyTime: 7, studyEnergy: 14, studySkill: 0.6, minSkillForWork: 2.2 },
-    { id: 4, name: 'Языковой Центр', type: 'study', workMoney: 60, workTime: 5, workEnergy: 11, workSkill: 0.04, studyCost: 60, studyTime: 6, studyEnergy: 12, studySkill: 0.7 },
-    { id: 5, name: 'Фриланс Площадка', type: 'work', workMoney: 100, workTime: 7, workEnergy: 16, workSkill: 0.08, studyCost: 85, studyTime: 6, studyEnergy: 12, studySkill: 0.45 },
-    { id: 6, name: 'Ментор Клуб', type: 'network', workMoney: 90, workTime: 6, workEnergy: 14, workSkill: 0.1, studyCost: 50, studyTime: 5, studyEnergy: 10, studySkill: 0.55 },
+    { id: 1, name: 'Стартовый Квартал', type: 'rest', workMoney: 40, workTime: 3, workEnergy: -12, workSkill: 0.02, studyCost: 25, studyTime: 3, studyEnergy: -8, studySkill: 0.15 },
+    { id: 2, name: 'Офисный Узел', type: 'work', workMoney: 100, workTime: 7, workEnergy: 15, workSkill: 0.08, studyCost: 70, studyTime: 5, studyEnergy: 11, studySkill: 0.35 },
+    { id: 3, name: 'Учебный Центр', type: 'study', workMoney: 70, workTime: 5, workEnergy: 10, workSkill: 0.05, studyCost: 90, studyTime: 7, studyEnergy: 13, studySkill: 0.8 },
+    { id: 4, name: 'Сервисный Парк', type: 'mixed', workMoney: 90, workTime: 6, workEnergy: 12, workSkill: 0.1, studyCost: 60, studyTime: 5, studyEnergy: 10, studySkill: 0.45 },
+    { id: 5, name: 'Городской Коворкинг', type: 'network', workMoney: 85, workTime: 6, workEnergy: 11, workSkill: 0.07, studyCost: 55, studyTime: 4, studyEnergy: 8, studySkill: 0.3 },
+    { id: 6, name: 'Площадь Роста', type: 'mixed', workMoney: 110, workTime: 7, workEnergy: 14, workSkill: 0.12, studyCost: 80, studyTime: 6, studyEnergy: 12, studySkill: 0.55 },
     { id: 7, name: 'Университет', type: 'study', workMoney: 80, workTime: 6, workEnergy: 13, workSkill: 0.06, studyCost: 120, studyTime: 9, studyEnergy: 18, studySkill: 1.1 },
     { id: 8, name: 'Бизнес-Инкубатор', type: 'mixed', workMoney: 130, workTime: 8, workEnergy: 17, workSkill: 0.14, studyCost: 95, studyTime: 7, studyEnergy: 13, studySkill: 0.65, minSkillForWork: 2.8 },
     { id: 9, name: 'Продажи', type: 'work', workMoney: 135, workTime: 9, workEnergy: 21, workSkill: 0.09, studyCost: 75, studyTime: 6, studyEnergy: 11, studySkill: 0.4 },
@@ -73,7 +30,7 @@ const sectors = [
     { id: 22, name: 'Медиа Агентство', type: 'mixed', workMoney: 128, workTime: 8, workEnergy: 17, workSkill: 0.13, studyCost: 85, studyTime: 6, studyEnergy: 12, studySkill: 0.55 },
     { id: 23, name: 'Soft Skills Hub', type: 'study', workMoney: 72, workTime: 5, workEnergy: 10, workSkill: 0.05, studyCost: 65, studyTime: 6, studyEnergy: 11, studySkill: 0.7 },
     { id: 24, name: 'HR Центр', type: 'work', workMoney: 118, workTime: 8, workEnergy: 16, workSkill: 0.09, studyCost: 70, studyTime: 5, studyEnergy: 10, studySkill: 0.42, minSkillForWork: 2.0 },
-    { id: 25, name: 'Парк Восстановления', type: 'rest', workMoney: 40, workTime: 3, workEnergy: -22, workSkill: 0.02, studyCost: 30, studyTime: 3, studyEnergy: -12, studySkill: 0.15 }
+    { id: 25, name: 'Парк Восстановления', type: 'rest', workMoney: 40, workTime: 3, workEnergy: -22, workSkill: 0.02, studyCost: 30, studyTime: 3, studyEnergy: -12, studySkill: 0.15 },
 ];
 
 const mapElement = document.getElementById('cityMap');
@@ -91,6 +48,7 @@ const currentPlayerValue = document.getElementById('currentPlayerValue');
 const dayStarterValue = document.getElementById('dayStarterValue');
 const turnsLeftValue = document.getElementById('turnsLeftValue');
 const playersBoard = document.getElementById('playersBoard');
+const gameKeyValue = document.getElementById('gameKeyValue');
 
 const nextTurnButton = document.getElementById('nextTurnButton');
 const buyTurnButton = document.getElementById('buyTurnButton');
@@ -100,8 +58,25 @@ const turnTransitionSector = document.getElementById('turnTransitionSector');
 const MAP_SIZE = 5;
 let turnTransitionInProgress = false;
 
+function createPlayerState(playerData, index) {
+    return {
+        id: playerData.id,
+        name: playerData.username,
+        money: 900,
+        time: 24,
+        energy: 100,
+        skill: 1,
+        career: 0,
+        workedThisWeek: 0,
+        studiedThisWeek: 0,
+        turnsLeft: 1,
+        extraTurnPrice: 120,
+        positionId: index === 0 ? 1 : 1,
+    };
+}
+
 function getActivePlayer() {
-    return gameState.players[gameState.activePlayerIndex];
+    return gameState.players[gameState.activePlayerIndex] || null;
 }
 
 function addLog(message, type = '') {
@@ -164,6 +139,13 @@ function predictWorkIncome(player, sector) {
 function renderPlayersBoard() {
     playersBoard.innerHTML = '';
 
+    if (!gameState.players.length) {
+        const row = document.createElement('li');
+        row.textContent = 'Пока нет подключенных игроков';
+        playersBoard.appendChild(row);
+        return;
+    }
+
     gameState.players.forEach((player, index) => {
         const row = document.createElement('li');
         if (index === gameState.activePlayerIndex) {
@@ -184,6 +166,22 @@ function renderPlayersBoard() {
 
 function renderStats() {
     const player = getActivePlayer();
+
+    if (!player) {
+        dayValue.textContent = '0';
+        moneyValue.textContent = '0';
+        timeValue.textContent = '0';
+        energyValue.textContent = '0';
+        skillValue.textContent = '0';
+        careerValue.textContent = '0';
+        currentPlayerValue.textContent = '-';
+        dayStarterValue.textContent = '-';
+        turnsLeftValue.textContent = '0';
+        buyTurnButton.textContent = '⭐ Купить ход';
+        nextTurnButton.textContent = '➡️ Передать ход';
+        renderPlayersBoard();
+        return;
+    }
 
     dayValue.textContent = String(gameState.day);
     moneyValue.textContent = String(player.money);
@@ -405,6 +403,12 @@ function renderSectorInfo() {
 
 function renderMapState() {
     const activePlayer = getActivePlayer();
+    if (!activePlayer) {
+        document.querySelectorAll('.sector').forEach((element) => {
+            element.classList.remove('active', 'current-location', 'next-location', 'prev-location', 'up-location', 'down-location', 'foggy');
+        });
+        return;
+    }
     const nextId = getNextSectorId(activePlayer.positionId);
     const prevId = getPrevSectorId(activePlayer.positionId);
     const upId = getUpSectorId(activePlayer.positionId);
@@ -434,7 +438,12 @@ function renderMapState() {
 
         const markers = gameState.players
             .filter((player) => player.positionId === sectorId)
-            .map((player) => `<span class="marker">P${player.id}</span>`)
+            .map((player) => `
+                <span class="player-badge ${player.id === getActivePlayer().id ? 'is-active' : ''}">
+                    <strong>${player.name}</strong>
+                    <small>$${player.money} | ходы ${player.turnsLeft}</small>
+                </span>
+            `)
             .join('');
 
         let markerContainer = element.querySelector('.player-markers');
@@ -636,16 +645,55 @@ function buildMap() {
     });
 }
 
+async function loadGameSession() {
+    const gameKey = localStorage.getItem('game_key');
+    if (!gameKey) {
+        gameState.players = [];
+        if (gameKeyValue) {
+            gameKeyValue.textContent = '-';
+        }
+        window.location.href = '/';
+        return false;
+    }
+
+    if (gameKeyValue) {
+        gameKeyValue.textContent = gameKey;
+    }
+
+    const response = await fetch(`/api/games/${encodeURIComponent(gameKey)}`);
+    if (!response.ok) {
+        gameState.players = [];
+        window.location.href = '/';
+        return false;
+    }
+
+    const gameData = await response.json();
+    gameState.players = (gameData.players || []).map(createPlayerState);
+    gameState.activePlayerIndex = 0;
+    gameState.dayStarterIndex = 0;
+    return true;
+}
+
+async function initGamePage() {
+    buildMap();
+    const hasSession = await loadGameSession();
+    if (!hasSession) {
+        return;
+    }
+    renderStats();
+    renderSectorInfo();
+    addLog('Игра запущена. Стартовый игрок дня ротируется, чтобы порядок хода был честным.');
+
+    if (gameState.players[0]) {
+        showTurnTransition(getActivePlayer(), () => {
+            renderStats();
+            renderSectorInfo();
+        });
+    }
+}
+
 nextTurnButton.addEventListener('click', nextPlayerTurn);
 buyTurnButton.addEventListener('click', buyExtraTurn);
 resetButton.addEventListener('click', resetGame);
 
-buildMap();
-renderStats();
-renderSectorInfo();
-addLog('Игра запущена. Стартовый игрок дня ротируется, чтобы порядок хода был честным.');
-
-showTurnTransition(getActivePlayer(), () => {
-    renderStats();
-    renderSectorInfo();
-});
+initGamePage();

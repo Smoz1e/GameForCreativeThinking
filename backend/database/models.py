@@ -1,14 +1,25 @@
-from config import Base
-from sqlalchemy import Column, Integer, String, Float
-from sqlalchemy.orm import Mapped, mapped_column
-from fastapi_users import models
-import models
+from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy.orm import relationship
 
-class Users(models.BaseUser):
-    __tablename__  = "users"
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    username: Mapped[str] = mapped_column(String, unique=True, index=True)
-    password: Mapped[str] = mapped_column(String)
-    phone_number: Mapped[str] = mapped_column(String)
+from .config import Base
 
-    Owner_id: Mapped[int] = mapped_column(Integer, models.ForeignKey("app.Model", verbose_name=_(""), on_delete=models.CASCADE))
+
+class GameMap(Base):
+    __tablename__ = "game_map"
+
+    id = Column(Integer, primary_key=True, index=True)
+    key = Column(String(64), unique=True, index=True, nullable=False)
+    owner_name = Column(String(100), nullable=False)
+    player_count = Column(Integer, default=0, nullable=False)
+
+    players = relationship("Users", back_populates="game_map", cascade="all, delete-orphan")
+
+
+class Users(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String(100), index=True, nullable=False)
+    game_key = Column(String(64), ForeignKey("game_map.key"), nullable=False)
+
+    game_map = relationship("GameMap", back_populates="players")
