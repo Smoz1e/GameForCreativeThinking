@@ -95,7 +95,10 @@ const playersBoard = document.getElementById('playersBoard');
 const nextTurnButton = document.getElementById('nextTurnButton');
 const buyTurnButton = document.getElementById('buyTurnButton');
 const resetButton = document.getElementById('resetButton');
+const turnTransitionOverlay = document.getElementById('turnTransitionOverlay');
+const turnTransitionSector = document.getElementById('turnTransitionSector');
 const MAP_SIZE = 5;
+let turnTransitionInProgress = false;
 
 function getActivePlayer() {
     return gameState.players[gameState.activePlayerIndex];
@@ -409,10 +412,12 @@ function renderMapState() {
 
     document.querySelectorAll('.sector').forEach((element) => {
         const sectorId = Number(element.dataset.id);
-        element.classList.remove('active', 'current-location', 'next-location', 'prev-location', 'up-location', 'down-location');
+        element.classList.remove('active', 'current-location', 'next-location', 'prev-location', 'up-location', 'down-location', 'foggy');
 
         if (sectorId === activePlayer.positionId) {
             element.classList.add('current-location');
+        } else {
+            element.classList.add('foggy');
         }
         if (sectorId === nextId) {
             element.classList.add('next-location');
@@ -440,6 +445,62 @@ function renderMapState() {
         }
         markerContainer.innerHTML = markers;
     });
+}
+
+function renderTransitionSector(player) {
+    const sector = getCurrentSector(player);
+    if (!sector || !turnTransitionSector) {
+        return;
+    }
+
+    const typeIcons = {
+        work: '💼',
+        study: '📚',
+        mixed: '🎯',
+        network: '🤝',
+        rest: '🏖️'
+    };
+
+    const icon = typeIcons[sector.type] || '📍';
+    turnTransitionSector.className = `turn-transition-sector sector type-${sector.type}`;
+    turnTransitionSector.innerHTML = `
+        <span class="sector-icon">${icon}</span>
+        <span class="sector-name">${sector.name}</span>
+        <span class="sector-meta">Игрок: ${player.name}</span>
+    `;
+
+    const overlayText = turnTransitionOverlay.querySelector('.turn-transition-label');
+    if (overlayText) {
+        overlayText.textContent = `Игрок ${player.name} находится здесь`;
+    }
+}
+
+function showTurnTransition(player, onDone) {
+    if (turnTransitionInProgress) {
+        return;
+    }
+
+    turnTransitionInProgress = true;
+    nextTurnButton.disabled = true;
+    buyTurnButton.disabled = true;
+    resetButton.disabled = true;
+
+    renderTransitionSector(player);
+    turnTransitionOverlay.classList.add('is-visible');
+    turnTransitionOverlay.setAttribute('aria-hidden', 'false');
+
+    window.setTimeout(() => {
+        turnTransitionOverlay.classList.remove('is-visible');
+        turnTransitionOverlay.setAttribute('aria-hidden', 'true');
+        turnTransitionInProgress = false;
+        nextTurnButton.disabled = false;
+        buyTurnButton.disabled = false;
+        resetButton.disabled = false;
+
+        if (typeof onDone === 'function') {
+            onDone();
+        }
+    }, 1100);
 }
 
 function applyDailyMaintenance(player) {
@@ -474,6 +535,10 @@ function applyDailyMaintenance(player) {
 }
 
 function nextPlayerTurn() {
+    if (turnTransitionInProgress) {
+        return;
+    }
+
     let nextIndex = (gameState.activePlayerIndex + 1) % gameState.players.length;
 
     if (nextIndex === gameState.dayStarterIndex) {
@@ -488,6 +553,12 @@ function nextPlayerTurn() {
 
     renderStats();
     renderSectorInfo();
+
+    const activePlayer = getActivePlayer();
+    showTurnTransition(activePlayer, () => {
+        renderStats();
+        renderSectorInfo();
+    });
 }
 
 function buyExtraTurn() {
@@ -529,6 +600,11 @@ function resetGame() {
     renderStats();
     renderSectorInfo();
     addLog('Сессия сброшена. Игроки начинают маршрут с места #1.');
+
+    showTurnTransition(getActivePlayer(), () => {
+        renderStats();
+        renderSectorInfo();
+    });
 }
 
 function buildMap() {
@@ -568,3 +644,8 @@ buildMap();
 renderStats();
 renderSectorInfo();
 addLog('Игра запущена. Стартовый игрок дня ротируется, чтобы порядок хода был честным.');
+
+showTurnTransition(getActivePlayer(), () => {
+    renderStats();
+    renderSectorInfo();
+});

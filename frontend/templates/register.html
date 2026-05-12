@@ -15,21 +15,36 @@
 				<p class="subtitle">Создайте профиль, чтобы войти в сессию и начать игру.</p>
 			</div>
 
-			<form class="register-form" method="post" action="#">
+			<form class="register-form" method="post" action="/cart">
 				<label class="field">
 					<span>Имя</span>
 					<input type="text" name="name" placeholder="Введите имя" autocomplete="name" required>
 				</label>
 
 				<label class="field">
-					<span>Ключь к сесии</span>
+					<span id="sessionKeyLabel">Ключь к сесии</span>
 					<input type="text" name="session_key" placeholder="Введите ключ сессии" autocomplete="off" required>
 				</label>
 
 				<button type="submit" class="primary-button">Зарегистрироваться</button>
-				<button type="button" class="secondary-button">Создать игру</button>
+				<button type="button" class="secondary-button" id="createGameButton">Создать игру</button>
 			</form>
 		</section>
 	</main>
+	<script>
+		const createGameButton = document.getElementById('createGameButton');
+		const sessionKeyLabel = document.getElementById('sessionKeyLabel');
+		const defaultButtonText = 'Создать игру';
+		const joinedButtonText = 'Присоедениться к игре';
+		const defaultLabelText = 'Ключь к сесии';
+		const joinedLabelText = 'Придумай ключь к сессии';
+
+		createGameButton.addEventListener('click', () => {
+			const isJoinedState = createGameButton.textContent === joinedButtonText;
+
+			createGameButton.textContent = isJoinedState ? defaultButtonText : joinedButtonText;
+			sessionKeyLabel.textContent = isJoinedState ? defaultLabelText : joinedLabelText;
+		});
+	</script>
 </body>
 </html>
