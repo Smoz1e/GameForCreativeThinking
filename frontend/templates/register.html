@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="/static/register.css">
+	<title>Регистрация игрока</title>
+</head>
+<body>
+	<main class="register-page">
+		<section class="register-card" aria-label="Регистрация игрока">
+			<div class="register-header">
+				<p class="eyebrow">Career Map</p>
+				<h1>Регистрация игрока</h1>
+				<p class="subtitle">Создайте профиль, чтобы войти в сессию и начать игру.</p>
+			</div>
+
+			<form class="register-form" method="post" action="#">
+				<label class="field">
+					<span>Имя</span>
+					<input type="text" name="name" placeholder="Введите имя" autocomplete="name" required>
+				</label>
+
+				<label class="field">
+					<span>Ключь к сесии</span>
+					<input type="text" name="session_key" placeholder="Введите ключ сессии" autocomplete="off" required>
+				</label>
+
+				<button type="submit" class="primary-button">Зарегистрироваться</button>
+				<button type="button" class="secondary-button">Создать игру</button>
+			</form>
+		</section>
+	</main>
+</body>
+</html>

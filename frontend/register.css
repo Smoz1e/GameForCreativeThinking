@@ -1,0 +1,144 @@
+* {
+	box-sizing: border-box;
+}
+
+html, body {
+	margin: 0;
+	width: 100%;
+	min-height: 100%;
+}
+
+body {
+	font-family: Arial, Helvetica, sans-serif;
+	color: #e6edf3;
+	background:
+		radial-gradient(circle at top, rgba(124, 199, 217, 0.12), transparent 35%),
+		linear-gradient(180deg, #0d1117 0%, #111827 100%);
+}
+
+.register-page {
+	min-height: 100vh;
+	display: grid;
+	place-items: center;
+	padding: 24px;
+}
+
+.register-card {
+	width: min(100%, 460px);
+	padding: 32px;
+	border: 1px solid rgba(124, 199, 217, 0.2);
+	border-radius: 20px;
+	background: rgba(22, 27, 34, 0.92);
+	box-shadow: 0 18px 50px rgba(0, 0, 0, 0.32);
+	backdrop-filter: blur(10px);
+}
+
+.register-header {
+	text-align: center;
+	margin-bottom: 24px;
+}
+
+.eyebrow {
+	margin: 0 0 8px;
+	font-size: 12px;
+	text-transform: uppercase;
+	letter-spacing: 2px;
+	color: #7cc7d9;
+}
+
+.register-header h1 {
+	margin: 0;
+	font-size: clamp(24px, 4vw, 32px);
+}
+
+.subtitle {
+	margin: 10px 0 0;
+	color: #9aa4b2;
+	font-size: 14px;
+	line-height: 1.5;
+}
+
+.register-form {
+	display: grid;
+	gap: 16px;
+}
+
+.field {
+	display: grid;
+	gap: 8px;
+}
+
+.field span {
+	font-size: 13px;
+	color: #c9d1d9;
+}
+
+.field input {
+	width: 100%;
+	padding: 14px 16px;
+	border-radius: 12px;
+	border: 1px solid #30363d;
+	background: #0d1117;
+	color: #e6edf3;
+	outline: none;
+	font-size: 15px;
+}
+
+.field input:focus {
+	border-color: #7cc7d9;
+	box-shadow: 0 0 0 3px rgba(124, 199, 217, 0.15);
+}
+
+.primary-button {
+	margin-top: 6px;
+	width: 100%;
+	padding: 14px 16px;
+	border: 0;
+	border-radius: 12px;
+	background: linear-gradient(135deg, #2f6f7d, #5c4c87);
+	color: #e6edf3;
+	font-size: 15px;
+	font-weight: 700;
+	cursor: pointer;
+}
+
+.secondary-button {
+	width: 100%;
+	padding: 14px 16px;
+	border-radius: 12px;
+	border: 1px solid rgba(124, 199, 217, 0.22);
+	background: rgba(13, 17, 23, 0.75);
+	color: #e6edf3;
+	font-size: 15px;
+	font-weight: 700;
+	cursor: pointer;
+	margin-top: -4px;
+}
+
+.secondary-button:hover {
+	background: rgba(124, 199, 217, 0.08);
+	border-color: rgba(124, 199, 217, 0.35);
+}
+
+.back-link {
+	display: inline-block;
+	margin-top: 18px;
+	color: #7cc7d9;
+	text-decoration: none;
+	font-size: 14px;
+}
+
+.back-link:hover {
+	text-decoration: underline;
+}
+
+@media (max-width: 480px) {
+	.register-card {
+		padding: 22px;
+		border-radius: 16px;
+	}
+
+	.register-page {
+		padding: 14px;
+	}
+}

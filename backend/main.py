@@ -12,3 +12,8 @@ templates = Jinja2Templates(directory=str(BASE_DIR.parent / "frontend" / "templa
 @app.get("/home")
 def read_root(request: Request):
     return templates.TemplateResponse(request, "cart.html")
+
+
+@app.get("/")
+def register_page(request: Request):
+    return templates.TemplateResponse(request, "register.html")
