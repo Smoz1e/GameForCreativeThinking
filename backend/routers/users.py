@@ -1,4 +1,5 @@
 from secrets import token_hex
+import json
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
@@ -19,6 +20,16 @@ class JoinGameRequest(BaseModel):
     game_key: str = Field(min_length=4, max_length=64)
 
 
+class LeaveGameRequest(BaseModel):
+    username: str = Field(min_length=1, max_length=100)
+    game_key: str = Field(min_length=4, max_length=64)
+
+
+class StateUpdateRequest(BaseModel):
+    game_key: str = Field(min_length=4, max_length=64)
+    state: dict
+
+
 def sync_player_count(db, game: GameMap) -> int:
     player_count = db.query(func.count(Users.id)).filter(Users.game_key == game.key).scalar() or 0
     game.player_count = player_count
@@ -31,6 +42,55 @@ def normalize_game_key(game_key: str) -> str:
 
 def normalize_username(username: str) -> str:
     return username.strip()
+
+
+def default_player_state(player_id: int, username: str, position_id: int = 1) -> dict:
+    return {
+        "id": player_id,
+        "name": username,
+        "money": 900,
+        "time": 24,
+        "energy": 100,
+        "skill": 1,
+        "career": 0,
+        "workedThisWeek": 0,
+        "studiedThisWeek": 0,
+        "turnsLeft": 1,
+        "extraTurnPrice": 120,
+        "positionId": position_id,
+    }
+
+
+def default_game_state(game: GameMap, players: list[dict]) -> dict:
+    return {
+        "day": 1,
+        "activePlayerIndex": 0,
+        "dayStarterIndex": 0,
+        "players": players,
+        "gameKey": game.key,
+        "ownerName": game.owner_name,
+    }
+
+
+def read_game_state(game: GameMap) -> dict:
+    raw_state = game.state_json or '{}'
+    try:
+        state = json.loads(raw_state)
+    except json.JSONDecodeError:
+        state = {}
+
+    state.setdefault('day', 1)
+    state.setdefault('activePlayerIndex', 0)
+    state.setdefault('dayStarterIndex', 0)
+    state.setdefault('players', [])
+    state.setdefault('gameKey', game.key)
+    state.setdefault('ownerName', game.owner_name)
+    return state
+
+
+def write_game_state(game: GameMap, state: dict) -> None:
+    game.state_json = json.dumps(state, ensure_ascii=False)
+    game.player_count = len(state.get('players', []))
 
 
 @router.post("/games/create")
@@ -50,7 +110,8 @@ def create_game(payload: CreateGameRequest):
         db.commit()
         db.refresh(game)
         db.refresh(player)
-        sync_player_count(db, game)
+        state = default_game_state(game, [default_player_state(player.id, player.username)])
+        write_game_state(game, state)
         db.commit()
 
         return {
@@ -58,6 +119,7 @@ def create_game(payload: CreateGameRequest):
             "game_key": game.key,
             "owner_name": game.owner_name,
             "player_id": player.id,
+            "state": state,
         }
     finally:
         db.close()
@@ -87,7 +149,15 @@ def join_game(payload: JoinGameRequest):
         db.add(player)
         db.commit()
         db.refresh(player)
-        player_count = sync_player_count(db, game)
+        state = read_game_state(game)
+        players = state.get('players', [])
+        players.append(default_player_state(player.id, player.username, position_id=1))
+        state['players'] = players
+        if state.get('activePlayerIndex', 0) >= len(players):
+            state['activePlayerIndex'] = 0
+        if state.get('dayStarterIndex', 0) >= len(players):
+            state['dayStarterIndex'] = 0
+        write_game_state(game, state)
         db.commit()
 
         return {
@@ -95,7 +165,8 @@ def join_game(payload: JoinGameRequest):
             "game_key": game.key,
             "username": player.username,
             "player_id": player.id,
-            "player_count": player_count,
+            "player_count": len(players),
+            "state": state,
         }
     finally:
         db.close()
@@ -110,12 +181,7 @@ def get_game(game_key: str):
         if game is None:
             raise HTTPException(status_code=404, detail="game_not_found")
 
-        players = (
-            db.query(Users)
-            .filter(Users.game_key == normalized_game_key)
-            .order_by(Users.id.asc())
-            .all()
-        )
+        state = read_game_state(game)
         player_count = sync_player_count(db, game)
         db.commit()
 
@@ -123,7 +189,75 @@ def get_game(game_key: str):
             "game_key": game.key,
             "owner_name": game.owner_name,
             "player_count": player_count,
-            "players": [{"id": player.id, "username": player.username} for player in players],
+            "state": state,
+        }
+    finally:
+        db.close()
+
+
+@router.put("/games/state")
+def update_game_state(payload: StateUpdateRequest):
+    db = SessionLocal()
+    try:
+        normalized_game_key = normalize_game_key(payload.game_key)
+        game = db.query(GameMap).filter(GameMap.key == normalized_game_key).first()
+        if game is None:
+            raise HTTPException(status_code=404, detail="game_not_found")
+
+        state = payload.state
+        state['gameKey'] = game.key
+        state['ownerName'] = game.owner_name
+        write_game_state(game, state)
+        db.commit()
+
+        return {
+            "message": "state_saved",
+            "state": state,
+        }
+    finally:
+        db.close()
+
+
+@router.post("/games/leave")
+def leave_game(payload: LeaveGameRequest):
+    db = SessionLocal()
+    try:
+        normalized_game_key = normalize_game_key(payload.game_key)
+        username = normalize_username(payload.username)
+
+        game = db.query(GameMap).filter(GameMap.key == normalized_game_key).first()
+        if game is None:
+            raise HTTPException(status_code=404, detail="game_not_found")
+
+        player = db.query(Users).filter(Users.game_key == normalized_game_key).filter(Users.username == username).first()
+        if player is None:
+            raise HTTPException(status_code=404, detail="player_not_found")
+
+        db.delete(player)
+        db.flush()
+
+        state = read_game_state(game)
+        state_players = [entry for entry in state.get('players', []) if entry.get('name') != username]
+        state['players'] = state_players
+
+        remaining_players = len(state_players)
+        if remaining_players == 0:
+            db.delete(game)
+            db.commit()
+            return {
+                "message": "game_deleted",
+                "game_key": normalized_game_key,
+                "remaining_players": 0,
+            }
+
+        write_game_state(game, state)
+        db.commit()
+
+        return {
+            "message": "player_left",
+            "game_key": normalized_game_key,
+            "remaining_players": remaining_players,
+            "state": state,
         }
     finally:
         db.close()

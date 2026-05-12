@@ -73,6 +73,32 @@ h1 {
     margin-top: 16px;
 }
 
+.brand-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 14px;
+}
+
+.exit-button {
+    padding: 8px 12px;
+    min-height: 34px;
+    border: 1px solid rgba(244, 63, 94, 0.75);
+    background: rgba(244, 63, 94, 0.08);
+    color: #ff8fa3;
+    border-radius: 999px;
+    font-size: 12px;
+    line-height: 1;
+    box-shadow: none;
+}
+
+.exit-button:hover,
+.exit-button:focus-visible {
+    border-color: #ff5a75;
+    background: rgba(244, 63, 94, 0.16);
+    color: #ffd1da;
+    transform: translateY(-1px);
+}
+
 .brand-metric {
     min-width: 150px;
     padding: 10px 14px;

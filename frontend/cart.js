@@ -1,11 +1,4 @@
-const gameState = {
-    day: 1,
-    activePlayerIndex: 0,
-    dayStarterIndex: 0,
-    players: [],
-};
-
-const sectors = [
+const sectorDefinitions = [
     { id: 1, name: 'Стартовый Квартал', type: 'rest', workMoney: 40, workTime: 3, workEnergy: -12, workSkill: 0.02, studyCost: 25, studyTime: 3, studyEnergy: -8, studySkill: 0.15 },
     { id: 2, name: 'Офисный Узел', type: 'work', workMoney: 100, workTime: 7, workEnergy: 15, workSkill: 0.08, studyCost: 70, studyTime: 5, studyEnergy: 11, studySkill: 0.35 },
     { id: 3, name: 'Учебный Центр', type: 'study', workMoney: 70, workTime: 5, workEnergy: 10, workSkill: 0.05, studyCost: 90, studyTime: 7, studyEnergy: 13, studySkill: 0.8 },
@@ -36,42 +29,88 @@ const sectors = [
 const mapElement = document.getElementById('cityMap');
 const sectorInfoElement = document.getElementById('sectorInfo');
 const eventLogElement = document.getElementById('eventLog');
-
 const dayValue = document.getElementById('dayValue');
 const moneyValue = document.getElementById('moneyValue');
 const timeValue = document.getElementById('timeValue');
 const energyValue = document.getElementById('energyValue');
 const skillValue = document.getElementById('skillValue');
 const careerValue = document.getElementById('careerValue');
-
 const currentPlayerValue = document.getElementById('currentPlayerValue');
 const dayStarterValue = document.getElementById('dayStarterValue');
 const turnsLeftValue = document.getElementById('turnsLeftValue');
 const playersBoard = document.getElementById('playersBoard');
 const gameKeyValue = document.getElementById('gameKeyValue');
-
+const leaveGameButton = document.getElementById('leaveGameButton');
 const nextTurnButton = document.getElementById('nextTurnButton');
 const buyTurnButton = document.getElementById('buyTurnButton');
 const resetButton = document.getElementById('resetButton');
 const turnTransitionOverlay = document.getElementById('turnTransitionOverlay');
 const turnTransitionSector = document.getElementById('turnTransitionSector');
+
 const MAP_SIZE = 5;
 let turnTransitionInProgress = false;
+let syncTimer = null;
+let currentRoomKey = null;
 
-function createPlayerState(playerData, index) {
+const gameState = {
+    day: 1,
+    activePlayerIndex: 0,
+    dayStarterIndex: 0,
+    players: [],
+};
+
+function getPlayerName(player) {
+    return player?.name || player?.username || '';
+}
+
+function normalizePlayer(player, index = 0) {
     return {
-        id: playerData.id,
-        name: playerData.username,
-        money: 900,
-        time: 24,
-        energy: 100,
-        skill: 1,
-        career: 0,
-        workedThisWeek: 0,
-        studiedThisWeek: 0,
-        turnsLeft: 1,
-        extraTurnPrice: 120,
-        positionId: index === 0 ? 1 : 1,
+        id: player.id,
+        name: getPlayerName(player),
+        money: Number(player.money ?? 900),
+        time: Number(player.time ?? 24),
+        energy: Number(player.energy ?? 100),
+        skill: Number(player.skill ?? 1),
+        career: Number(player.career ?? 0),
+        workedThisWeek: Number(player.workedThisWeek ?? 0),
+        studiedThisWeek: Number(player.studiedThisWeek ?? 0),
+        turnsLeft: Number(player.turnsLeft ?? 1),
+        extraTurnPrice: Number(player.extraTurnPrice ?? 120),
+        positionId: Number(player.positionId ?? 1),
+        _index: index,
+    };
+}
+
+function serializePlayer(player) {
+    return {
+        id: player.id,
+        name: player.name,
+        money: player.money,
+        time: player.time,
+        energy: player.energy,
+        skill: player.skill,
+        career: player.career,
+        workedThisWeek: player.workedThisWeek,
+        studiedThisWeek: player.studiedThisWeek,
+        turnsLeft: player.turnsLeft,
+        extraTurnPrice: player.extraTurnPrice,
+        positionId: player.positionId,
+    };
+}
+
+function applyState(state) {
+    gameState.day = Number(state.day ?? 1);
+    gameState.activePlayerIndex = Number(state.activePlayerIndex ?? 0);
+    gameState.dayStarterIndex = Number(state.dayStarterIndex ?? 0);
+    gameState.players = (state.players || []).map((player, index) => normalizePlayer(player, index));
+}
+
+function statePayload() {
+    return {
+        day: gameState.day,
+        activePlayerIndex: gameState.activePlayerIndex,
+        dayStarterIndex: gameState.dayStarterIndex,
+        players: gameState.players.map(serializePlayer),
     };
 }
 
@@ -79,33 +118,20 @@ function getActivePlayer() {
     return gameState.players[gameState.activePlayerIndex] || null;
 }
 
-function addLog(message, type = '') {
-    const item = document.createElement('li');
-    item.textContent = `День ${gameState.day}: ${message}`;
-    if (type) {
-        item.classList.add(type);
-    }
-    eventLogElement.prepend(item);
-
-    while (eventLogElement.children.length > 12) {
-        eventLogElement.removeChild(eventLogElement.lastChild);
-    }
-}
-
 function getSectorById(id) {
-    return sectors.find((sector) => sector.id === id);
+    return sectorDefinitions.find((sector) => sector.id === id);
 }
 
 function getCurrentSector(player) {
-    return getSectorById(player.positionId);
+    return player ? getSectorById(player.positionId) : null;
 }
 
 function getNextSectorId(currentId) {
-    return currentId >= sectors.length ? 1 : currentId + 1;
+    return currentId >= sectorDefinitions.length ? 1 : currentId + 1;
 }
 
 function getPrevSectorId(currentId) {
-    return currentId <= 1 ? sectors.length : currentId - 1;
+    return currentId <= 1 ? sectorDefinitions.length : currentId - 1;
 }
 
 function getUpSectorId(currentId) {
@@ -115,19 +141,27 @@ function getUpSectorId(currentId) {
 
 function getDownSectorId(currentId) {
     const downId = currentId + MAP_SIZE;
-    return downId <= sectors.length ? downId : null;
+    return downId <= sectorDefinitions.length ? downId : null;
 }
 
 function getDistanceBetweenSectors(fromId, toId) {
-    // Расчет расстояния Manhattan в сетке 5x5
     const fromRow = Math.floor((fromId - 1) / MAP_SIZE);
     const fromCol = (fromId - 1) % MAP_SIZE;
-
     const toRow = Math.floor((toId - 1) / MAP_SIZE);
     const toCol = (toId - 1) % MAP_SIZE;
+    return Math.max(1, Math.abs(fromRow - toRow) + Math.abs(fromCol - toCol));
+}
 
-    const distance = Math.abs(fromRow - toRow) + Math.abs(fromCol - toCol);
-    return Math.max(1, distance); // Минимум 1, даже если на одной клетке
+function addLog(message, type = '') {
+    const item = document.createElement('li');
+    item.textContent = `День ${gameState.day}: ${message}`;
+    if (type) {
+        item.classList.add(type);
+    }
+    eventLogElement.prepend(item);
+    while (eventLogElement.children.length > 12) {
+        eventLogElement.removeChild(eventLogElement.lastChild);
+    }
 }
 
 function predictWorkIncome(player, sector) {
@@ -136,9 +170,26 @@ function predictWorkIncome(player, sector) {
     return Math.round(sector.workMoney * skillFactor * careerFactor);
 }
 
+async function apiFetch(path, options = {}) {
+    const response = await fetch(path, {
+        headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
+        ...options,
+    });
+    let data = null;
+    try {
+        data = await response.json();
+    } catch (_) {
+        data = null;
+    }
+    if (!response.ok) {
+        const detail = data?.detail || 'request_failed';
+        throw new Error(detail);
+    }
+    return data;
+}
+
 function renderPlayersBoard() {
     playersBoard.innerHTML = '';
-
     if (!gameState.players.length) {
         const row = document.createElement('li');
         row.textContent = 'Пока нет подключенных игроков';
@@ -154,19 +205,58 @@ function renderPlayersBoard() {
         if (index === gameState.dayStarterIndex) {
             row.classList.add('day-starter');
         }
-
-        row.innerHTML = `
-            <span>${player.name}</span>
-            <span>$${player.money} | Навык ${player.skill.toFixed(1)} | Ходы ${player.turnsLeft}</span>
-        `;
-
+        row.innerHTML = `<span>${player.name}</span><span>$${player.money} | Навык ${player.skill.toFixed(1)} | Ходы ${player.turnsLeft}</span>`;
         playersBoard.appendChild(row);
+    });
+}
+
+function renderMapState() {
+    const activePlayer = getActivePlayer();
+    document.querySelectorAll('.sector').forEach((element) => {
+        const sectorId = Number(element.dataset.id);
+        element.classList.remove('active', 'current-location', 'next-location', 'prev-location', 'up-location', 'down-location', 'foggy');
+
+        if (!activePlayer) {
+            return;
+        }
+
+        if (sectorId === activePlayer.positionId) {
+            element.classList.add('current-location');
+        } else {
+            element.classList.add('foggy');
+        }
+        if (sectorId === getNextSectorId(activePlayer.positionId)) {
+            element.classList.add('next-location');
+        }
+        if (sectorId === getPrevSectorId(activePlayer.positionId)) {
+            element.classList.add('prev-location');
+        }
+        const upId = getUpSectorId(activePlayer.positionId);
+        const downId = getDownSectorId(activePlayer.positionId);
+        if (upId !== null && sectorId === upId) {
+            element.classList.add('up-location');
+        }
+        if (downId !== null && sectorId === downId) {
+            element.classList.add('down-location');
+        }
+
+        const markers = gameState.players
+            .filter((player) => player.positionId === sectorId)
+            .map((player) => `<span class="player-badge ${player.id === activePlayer.id ? 'is-active' : ''}"><strong>${player.name}</strong><small>$${player.money} | ходы ${player.turnsLeft}</small></span>`)
+            .join('');
+
+        let markerContainer = element.querySelector('.player-markers');
+        if (!markerContainer) {
+            markerContainer = document.createElement('div');
+            markerContainer.className = 'player-markers';
+            element.appendChild(markerContainer);
+        }
+        markerContainer.innerHTML = markers;
     });
 }
 
 function renderStats() {
     const player = getActivePlayer();
-
     if (!player) {
         dayValue.textContent = '0';
         moneyValue.textContent = '0';
@@ -180,6 +270,7 @@ function renderStats() {
         buyTurnButton.textContent = '⭐ Купить ход';
         nextTurnButton.textContent = '➡️ Передать ход';
         renderPlayersBoard();
+        renderMapState();
         return;
     }
 
@@ -189,193 +280,22 @@ function renderStats() {
     energyValue.textContent = String(player.energy);
     skillValue.textContent = player.skill.toFixed(1);
     careerValue.textContent = String(player.career);
-
     currentPlayerValue.textContent = player.name;
-    dayStarterValue.textContent = gameState.players[gameState.dayStarterIndex].name;
+    dayStarterValue.textContent = gameState.players[gameState.dayStarterIndex]?.name || '-';
     turnsLeftValue.textContent = String(player.turnsLeft);
     buyTurnButton.textContent = `⭐ Купить ход (${player.extraTurnPrice})`;
-    nextTurnButton.textContent = `➡️ Передать ход`;
-
+    nextTurnButton.textContent = '➡️ Передать ход';
     renderPlayersBoard();
     renderMapState();
-}
-
-function consumeTurn(player) {
-    if (player.turnsLeft <= 0) {
-        addLog(`${player.name}: нет доступных ходов. Передайте ход или купите новый.`, 'warning');
-        return false;
-    }
-
-    player.turnsLeft -= 1;
-    return true;
-}
-
-function autoPassTurnIfNoTime() {
-    const player = getActivePlayer();
-    if (player.time <= 0) {
-        player.time = 0;
-        addLog(`${player.name}: свободное время закончилось, ход передан автоматически.`, 'warning');
-        nextPlayerTurn();
-        return true;
-    }
-    return false;
-}
-
-function doWork() {
-    const player = getActivePlayer();
-    const sector = getCurrentSector(player);
-    if (!sector) {
-        return;
-    }
-
-    if (!consumeTurn(player)) {
-        return;
-    }
-
-    const minSkillForWork = sector.minSkillForWork || 0;
-    if (player.skill < minSkillForWork) {
-        player.turnsLeft += 1;
-        addLog(`${player.name}: для работы в "${sector.name}" нужна квалификация ${minSkillForWork.toFixed(1)}. Сначала пройдите обучение.`, 'warning');
-        return;
-    }
-
-    if (player.time < sector.workTime) {
-        player.turnsLeft += 1;
-        addLog(`${player.name}: недостаточно времени для работы в "${sector.name}".`, 'warning');
-        if (player.time <= 0) {
-            autoPassTurnIfNoTime();
-        }
-        return;
-    }
-
-    if (player.energy < Math.max(0, sector.workEnergy)) {
-        player.turnsLeft += 1;
-        addLog(`${player.name}: недостаточно энергии для работы в "${sector.name}".`, 'warning');
-        return;
-    }
-
-    const income = predictWorkIncome(player, sector);
-
-    player.money += income;
-    player.time -= sector.workTime;
-    player.energy = Math.max(0, Math.min(100, player.energy - sector.workEnergy));
-    player.skill = Number((player.skill + sector.workSkill).toFixed(2));
-    player.career += 1;
-    player.workedThisWeek += 1;
-
-    addLog(`${player.name} работает в "${sector.name}": +${income} денег.`, 'positive');
-    if (autoPassTurnIfNoTime()) {
-        return;
-    }
-    renderStats();
-    renderSectorInfo();
-}
-
-function doStudy() {
-    const player = getActivePlayer();
-    const sector = getCurrentSector(player);
-    if (!sector) {
-        return;
-    }
-
-    if (!consumeTurn(player)) {
-        return;
-    }
-
-    if (player.money < sector.studyCost) {
-        player.turnsLeft += 1;
-        addLog(`${player.name}: недостаточно денег для учебы в "${sector.name}".`, 'warning');
-        return;
-    }
-
-    if (player.time < sector.studyTime) {
-        player.turnsLeft += 1;
-        addLog(`${player.name}: недостаточно времени для учебы в "${sector.name}".`, 'warning');
-        if (player.time <= 0) {
-            autoPassTurnIfNoTime();
-        }
-        return;
-    }
-
-    if (player.energy < Math.max(0, sector.studyEnergy)) {
-        player.turnsLeft += 1;
-        addLog(`${player.name}: недостаточно энергии для учебы в "${sector.name}".`, 'warning');
-        return;
-    }
-
-    player.money -= sector.studyCost;
-    player.time -= sector.studyTime;
-    player.energy = Math.max(0, Math.min(100, player.energy - sector.studyEnergy));
-    player.skill = Number((player.skill + sector.studySkill).toFixed(2));
-    player.career += 2;
-    player.studiedThisWeek += 1;
-
-    addLog(`${player.name} учится в "${sector.name}": -${sector.studyCost} денег, +${sector.studySkill.toFixed(2)} к навыку.`, 'positive');
-    if (autoPassTurnIfNoTime()) {
-        return;
-    }
-    renderStats();
-    renderSectorInfo();
-}
-
-function moveToSector(sectorId) {
-    const player = getActivePlayer();
-    const targetSectorId = parseInt(sectorId);
-
-    if (player.positionId === targetSectorId) {
-        addLog(`${player.name}: вы уже находитесь в "${getCurrentSector(player).name}".`, 'warning');
-        return;
-    }
-
-    // НОВОЕ: Рассчитываем расстояние между клетками
-    const distance = getDistanceBetweenSectors(player.positionId, targetSectorId);
-
-    const moveMoneyCost = 25; // Стоимость в деньгах
-    const moveTimeCost = distance * 1; // Время: расстояние × 1 час за клетку
-    const moveEnergyCost = distance * 2; // Энергия: расстояние × 2 (как вы просили)
-
-    if (player.money < moveMoneyCost) {
-        addLog(`${player.name}: недостаточно денег на переход.`, 'warning');
-        return;
-    }
-
-    if (player.time < moveTimeCost) {
-        addLog(`${player.name}: недостаточно времени для перемещения (требуется ${moveTimeCost}ч).`, 'warning');
-        if (player.time <= 0) {
-            autoPassTurnIfNoTime();
-        }
-        return;
-    }
-
-    if (player.energy < moveEnergyCost) {
-        addLog(`${player.name}: недостаточно энергии на перемещение (требуется ${moveEnergyCost}).`, 'warning');
-        return;
-    }
-
-    const prevSectorName = getCurrentSector(player).name;
-    player.money -= moveMoneyCost;
-    player.positionId = targetSectorId;
-    player.time -= moveTimeCost;
-    player.energy = Math.max(0, player.energy - moveEnergyCost);
-
-    const currentSector = getCurrentSector(player);
-    addLog(`${player.name} перемещается: "${prevSectorName}" → "${currentSector.name}" (расстояние: ${distance} клеток, -${moveEnergyCost} энергии, -${moveTimeCost}ч).`, 'positive');
-
-    if (autoPassTurnIfNoTime()) {
-        return;
-    }
-    renderStats();
-    renderSectorInfo();
 }
 
 function renderSectorInfo() {
     const player = getActivePlayer();
     const sector = getCurrentSector(player);
-    if (!sector) {
+    if (!player || !sector) {
+        sectorInfoElement.innerHTML = '<p>Здесь появится информация о месте, где сейчас находится активный игрок.</p>';
         return;
     }
-
-    const minSkillForWork = sector.minSkillForWork || 0;
 
     sectorInfoElement.innerHTML = `
         <h4>${sector.name}</h4>
@@ -385,7 +305,7 @@ function renderSectorInfo() {
             <p>Учеба: +${sector.studySkill} к навыку</p>
             <p>Время: ${sector.workTime}ч</p>
             <p>Энергия: -${Math.max(0, sector.workEnergy)}</p>
-            <p>Порог работы: ${minSkillForWork > 0 ? minSkillForWork.toFixed(1) : 'нет'}</p>
+            <p>Порог работы: ${sector.minSkillForWork ? sector.minSkillForWork.toFixed(1) : 'нет'}</p>
         </div>
         <div class="action-buttons">
             <button id="workButton" class="invest-button action-work" type="button">💼 Работать</button>
@@ -393,102 +313,32 @@ function renderSectorInfo() {
         </div>
     `;
 
-    const workButton = document.getElementById('workButton');
-    const studyButton = document.getElementById('studyButton');
-
-    workButton.addEventListener('click', doWork);
-    studyButton.addEventListener('click', doStudy);
-}
-
-
-function renderMapState() {
-    const activePlayer = getActivePlayer();
-    if (!activePlayer) {
-        document.querySelectorAll('.sector').forEach((element) => {
-            element.classList.remove('active', 'current-location', 'next-location', 'prev-location', 'up-location', 'down-location', 'foggy');
-        });
-        return;
-    }
-    const nextId = getNextSectorId(activePlayer.positionId);
-    const prevId = getPrevSectorId(activePlayer.positionId);
-    const upId = getUpSectorId(activePlayer.positionId);
-    const downId = getDownSectorId(activePlayer.positionId);
-
-    document.querySelectorAll('.sector').forEach((element) => {
-        const sectorId = Number(element.dataset.id);
-        element.classList.remove('active', 'current-location', 'next-location', 'prev-location', 'up-location', 'down-location', 'foggy');
-
-        if (sectorId === activePlayer.positionId) {
-            element.classList.add('current-location');
-        } else {
-            element.classList.add('foggy');
-        }
-        if (sectorId === nextId) {
-            element.classList.add('next-location');
-        }
-        if (sectorId === prevId) {
-            element.classList.add('prev-location');
-        }
-        if (upId !== null && sectorId === upId) {
-            element.classList.add('up-location');
-        }
-        if (downId !== null && sectorId === downId) {
-            element.classList.add('down-location');
-        }
-
-        const markers = gameState.players
-            .filter((player) => player.positionId === sectorId)
-            .map((player) => `
-                <span class="player-badge ${player.id === getActivePlayer().id ? 'is-active' : ''}">
-                    <strong>${player.name}</strong>
-                    <small>$${player.money} | ходы ${player.turnsLeft}</small>
-                </span>
-            `)
-            .join('');
-
-        let markerContainer = element.querySelector('.player-markers');
-        if (!markerContainer) {
-            markerContainer = document.createElement('div');
-            markerContainer.className = 'player-markers';
-            element.appendChild(markerContainer);
-        }
-        markerContainer.innerHTML = markers;
-    });
+    document.getElementById('workButton').addEventListener('click', doWork);
+    document.getElementById('studyButton').addEventListener('click', doStudy);
 }
 
 function renderTransitionSector(player) {
     const sector = getCurrentSector(player);
-    if (!sector || !turnTransitionSector) {
+    if (!sector) {
         return;
     }
-
-    const typeIcons = {
-        work: '💼',
-        study: '📚',
-        mixed: '🎯',
-        network: '🤝',
-        rest: '🏖️'
-    };
-
-    const icon = typeIcons[sector.type] || '📍';
-    turnTransitionSector.className = `turn-transition-sector sector type-${sector.type}`;
-    turnTransitionSector.innerHTML = `
-        <span class="sector-icon">${icon}</span>
-        <span class="sector-name">${sector.name}</span>
-        <span class="sector-meta">Игрок: ${player.name}</span>
-    `;
-
+    const icons = { work: '💼', study: '📚', mixed: '🎯', network: '🤝', rest: '🏖️' };
     const overlayText = turnTransitionOverlay.querySelector('.turn-transition-label');
     if (overlayText) {
         overlayText.textContent = `Игрок ${player.name} находится здесь`;
     }
+    turnTransitionSector.className = `turn-transition-sector sector type-${sector.type}`;
+    turnTransitionSector.innerHTML = `
+        <span class="sector-icon">${icons[sector.type] || '📍'}</span>
+        <span class="sector-name">${sector.name}</span>
+        <span class="sector-meta">Игрок: ${player.name}</span>
+    `;
 }
 
 function showTurnTransition(player, onDone) {
-    if (turnTransitionInProgress) {
+    if (!player || turnTransitionInProgress) {
         return;
     }
-
     turnTransitionInProgress = true;
     nextTurnButton.disabled = true;
     buyTurnButton.disabled = true;
@@ -505,92 +355,211 @@ function showTurnTransition(player, onDone) {
         nextTurnButton.disabled = false;
         buyTurnButton.disabled = false;
         resetButton.disabled = false;
-
         if (typeof onDone === 'function') {
             onDone();
         }
-    }, 1100);
+    }, 900);
+}
+
+async function saveRoomState() {
+    if (!currentRoomKey) {
+        return false;
+    }
+    await apiFetch('/api/games/state', {
+        method: 'PUT',
+        body: JSON.stringify({ game_key: currentRoomKey, state: statePayload() }),
+    });
+    return true;
+}
+
+async function syncRoomState() {
+    if (!currentRoomKey) {
+        return false;
+    }
+    const response = await fetch(`/api/games/${encodeURIComponent(currentRoomKey)}`);
+    if (!response.ok) {
+        return false;
+    }
+    const data = await response.json();
+    if (!data.state) {
+        return false;
+    }
+    applyState(data.state);
+    return true;
+}
+
+function consumeTurn(player) {
+    if (player.turnsLeft <= 0) {
+        addLog(`${player.name}: нет доступных ходов. Передайте ход или купите новый.`, 'warning');
+        return false;
+    }
+    player.turnsLeft -= 1;
+    return true;
+}
+
+function autoPassTurnIfNoTime() {
+    const player = getActivePlayer();
+    if (player && player.time <= 0) {
+        player.time = 0;
+        addLog(`${player.name}: свободное время закончилось, ход передан автоматически.`, 'warning');
+        nextPlayerTurn();
+        return true;
+    }
+    return false;
+}
+
+function doWork() {
+    const player = getActivePlayer();
+    const sector = getCurrentSector(player);
+    if (!player || !sector) {
+        return;
+    }
+    if (!consumeTurn(player)) {
+        return;
+    }
+    if (player.skill < (sector.minSkillForWork || 0)) {
+        player.turnsLeft += 1;
+        addLog(`${player.name}: для работы в "${sector.name}" нужна квалификация ${sector.minSkillForWork.toFixed(1)}.`, 'warning');
+        return;
+    }
+    if (player.money < 0) {
+        player.turnsLeft += 1;
+        addLog(`${player.name}: недостаточно денег.`, 'warning');
+        return;
+    }
+    if (player.time < sector.workTime || player.energy < Math.max(0, sector.workEnergy)) {
+        player.turnsLeft += 1;
+        addLog(`${player.name}: недостаточно ресурсов для работы в "${sector.name}".`, 'warning');
+        return;
+    }
+    const income = predictWorkIncome(player, sector);
+    player.money += income;
+    player.time -= sector.workTime;
+    player.energy = Math.max(0, Math.min(100, player.energy - sector.workEnergy));
+    player.skill = Number((player.skill + sector.workSkill).toFixed(2));
+    player.career += 1;
+    player.workedThisWeek += 1;
+    addLog(`${player.name} работает в "${sector.name}": +${income} денег.`, 'positive');
+    saveRoomState().finally(() => renderStats());
+}
+
+function doStudy() {
+    const player = getActivePlayer();
+    const sector = getCurrentSector(player);
+    if (!player || !sector) {
+        return;
+    }
+    if (!consumeTurn(player)) {
+        return;
+    }
+    if (player.money < sector.studyCost || player.time < sector.studyTime || player.energy < Math.max(0, sector.studyEnergy)) {
+        player.turnsLeft += 1;
+        addLog(`${player.name}: недостаточно ресурсов для учебы в "${sector.name}".`, 'warning');
+        return;
+    }
+    player.money -= sector.studyCost;
+    player.time -= sector.studyTime;
+    player.energy = Math.max(0, Math.min(100, player.energy - sector.studyEnergy));
+    player.skill = Number((player.skill + sector.studySkill).toFixed(2));
+    player.career += 2;
+    player.studiedThisWeek += 1;
+    addLog(`${player.name} учится в "${sector.name}": -${sector.studyCost} денег, +${sector.studySkill.toFixed(2)} к навыку.`, 'positive');
+    saveRoomState().finally(() => renderStats());
+}
+
+function moveToSector(sectorId) {
+    const player = getActivePlayer();
+    if (!player) {
+        return;
+    }
+    const targetSectorId = Number(sectorId);
+    if (player.positionId === targetSectorId) {
+        addLog(`${player.name}: вы уже находитесь в "${getCurrentSector(player).name}".`, 'warning');
+        return;
+    }
+
+    const distance = getDistanceBetweenSectors(player.positionId, targetSectorId);
+    const moveMoneyCost = 25;
+    const moveTimeCost = distance;
+    const moveEnergyCost = distance * 2;
+
+    if (player.money < moveMoneyCost || player.time < moveTimeCost || player.energy < moveEnergyCost) {
+        addLog(`${player.name}: недостаточно ресурсов для перемещения.`, 'warning');
+        return;
+    }
+
+    const prevSectorName = getCurrentSector(player).name;
+    player.money -= moveMoneyCost;
+    player.positionId = targetSectorId;
+    player.time -= moveTimeCost;
+    player.energy = Math.max(0, player.energy - moveEnergyCost);
+    addLog(`${player.name} перемещается: "${prevSectorName}" → "${getCurrentSector(player).name}".`, 'positive');
+    saveRoomState().finally(() => renderStats());
 }
 
 function applyDailyMaintenance(player) {
     const livingCost = 35 + Math.round(player.career * 0.6);
-    player.money -= livingCost;
-
+    player.money = Math.max(0, player.money - livingCost);
     if (player.studiedThisWeek === 0) {
         player.skill = Number(Math.max(1, player.skill - 0.05).toFixed(2));
     }
-
     if (player.workedThisWeek === 0 && player.studiedThisWeek === 0) {
         player.career = Math.max(0, player.career - 1);
     }
-
-    if (player.money < 0) {
-        player.money = 0;
-        player.career = Math.max(0, player.career - 2);
-    }
-
     if (player.workedThisWeek >= 2 && player.studiedThisWeek >= 1) {
         player.career += 1;
     }
-
     player.time = 24;
     player.energy = Math.min(100, player.energy + 45);
     player.workedThisWeek = 0;
     player.studiedThisWeek = 0;
     player.turnsLeft = 1;
     player.extraTurnPrice = 120;
-
     addLog(`${player.name}: ежедневные расходы ${livingCost}, ресурсы обновлены.`);
 }
 
 function nextPlayerTurn() {
-    if (turnTransitionInProgress) {
+    if (turnTransitionInProgress || !gameState.players.length) {
         return;
     }
-
     let nextIndex = (gameState.activePlayerIndex + 1) % gameState.players.length;
-
     if (nextIndex === gameState.dayStarterIndex) {
         gameState.day += 1;
-        gameState.players.forEach((player) => applyDailyMaintenance(player));
+        gameState.players.forEach(applyDailyMaintenance);
         gameState.dayStarterIndex = (gameState.dayStarterIndex + 1) % gameState.players.length;
         nextIndex = gameState.dayStarterIndex;
         addLog(`Новый день начался. Первым ходит ${gameState.players[nextIndex].name}.`, 'positive');
     }
-
     gameState.activePlayerIndex = nextIndex;
-
-    renderStats();
-    renderSectorInfo();
-
-    const activePlayer = getActivePlayer();
-    showTurnTransition(activePlayer, () => {
+    saveRoomState().finally(() => {
         renderStats();
-        renderSectorInfo();
+        showTurnTransition(getActivePlayer(), renderStats);
     });
 }
 
 function buyExtraTurn() {
     const player = getActivePlayer();
+    if (!player) {
+        return;
+    }
     if (player.money < player.extraTurnPrice) {
         addLog(`${player.name}: не хватает денег на покупку хода.`, 'warning');
         return;
     }
-
     player.money -= player.extraTurnPrice;
     player.turnsLeft += 1;
     player.extraTurnPrice += 60;
-
-    addLog(`${player.name} покупает дополнительный ход. ⭐`, 'positive');
-    renderStats();
-    renderSectorInfo();
+    addLog(`${player.name} покупает дополнительный ход.`, 'positive');
+    saveRoomState().finally(() => renderStats());
 }
 
 function resetGame() {
+    if (!gameState.players.length) {
+        return;
+    }
     gameState.day = 1;
     gameState.activePlayerIndex = 0;
     gameState.dayStarterIndex = 0;
-
     gameState.players.forEach((player) => {
         player.money = 900;
         player.time = 24;
@@ -603,44 +572,29 @@ function resetGame() {
         player.extraTurnPrice = 120;
         player.positionId = 1;
     });
-
     eventLogElement.innerHTML = '';
-
-    renderStats();
-    renderSectorInfo();
     addLog('Сессия сброшена. Игроки начинают маршрут с места #1.');
-
-    showTurnTransition(getActivePlayer(), () => {
+    saveRoomState().finally(() => {
         renderStats();
-        renderSectorInfo();
+        showTurnTransition(getActivePlayer(), renderStats);
     });
 }
 
 function buildMap() {
-    const typeIcons = {
-        work: '💼',
-        study: '📚',
-        mixed: '🎯',
-        network: '🤝',
-        rest: '🏖️'
-    };
-
-    sectors.forEach((sector) => {
+    const typeIcons = { work: '💼', study: '📚', mixed: '🎯', network: '🤝', rest: '🏖️' };
+    mapElement.innerHTML = '';
+    sectorDefinitions.forEach((sector) => {
         const sectorElement = document.createElement('button');
         sectorElement.type = 'button';
         sectorElement.className = `sector type-${sector.type}`;
         sectorElement.dataset.id = String(sector.id);
-        const icon = typeIcons[sector.type] || '📍';
         sectorElement.innerHTML = `
-            <span class="sector-icon">${icon}</span>
+            <span class="sector-icon">${typeIcons[sector.type] || '📍'}</span>
             <span class="sector-name">${sector.name}</span>
             <span class="sector-meta">Работа: +${sector.workMoney} | Учеба: +${sector.studySkill}</span>
             <div class="player-markers"></div>
         `;
-
-        // Добавляем обработчик клика для перемещения
         sectorElement.addEventListener('click', () => moveToSector(sector.id));
-
         mapElement.appendChild(sectorElement);
     });
 }
@@ -648,52 +602,83 @@ function buildMap() {
 async function loadGameSession() {
     const gameKey = localStorage.getItem('game_key');
     if (!gameKey) {
-        gameState.players = [];
-        if (gameKeyValue) {
-            gameKeyValue.textContent = '-';
-        }
         window.location.href = '/';
         return false;
     }
-
+    currentRoomKey = gameKey;
     if (gameKeyValue) {
         gameKeyValue.textContent = gameKey;
     }
 
     const response = await fetch(`/api/games/${encodeURIComponent(gameKey)}`);
     if (!response.ok) {
-        gameState.players = [];
         window.location.href = '/';
         return false;
     }
-
-    const gameData = await response.json();
-    gameState.players = (gameData.players || []).map(createPlayerState);
-    gameState.activePlayerIndex = 0;
-    gameState.dayStarterIndex = 0;
+    const data = await response.json();
+    if (!data.state) {
+        window.location.href = '/';
+        return false;
+    }
+    applyState(data.state);
     return true;
+}
+
+async function leaveGameSession() {
+    const gameKey = localStorage.getItem('game_key');
+    const playerName = localStorage.getItem('player_name');
+    localStorage.removeItem('game_key');
+    localStorage.removeItem('player_name');
+    if (gameKey && playerName) {
+        try {
+            await fetch('/api/games/leave', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ game_key: gameKey, username: playerName }),
+            });
+        } catch (_) {
+            // no-op
+        }
+    }
+    window.location.href = '/';
+}
+
+async function periodicSync() {
+    try {
+        const ok = await syncRoomState();
+        if (ok) {
+            renderStats();
+            renderSectorInfo();
+        }
+    } catch (_) {
+        // ignore temporary network errors
+    }
 }
 
 async function initGamePage() {
     buildMap();
-    const hasSession = await loadGameSession();
-    if (!hasSession) {
+    const loaded = await loadGameSession();
+    if (!loaded) {
         return;
     }
     renderStats();
     renderSectorInfo();
-    addLog('Игра запущена. Стартовый игрок дня ротируется, чтобы порядок хода был честным.');
-
-    if (gameState.players[0]) {
-        showTurnTransition(getActivePlayer(), () => {
-            renderStats();
-            renderSectorInfo();
-        });
+    if (syncTimer) {
+        window.clearInterval(syncTimer);
     }
+    syncTimer = window.setInterval(periodicSync, 2000);
+    addLog('Игра запущена. Состояние синхронизируется через backend.', 'positive');
+    showTurnTransition(getActivePlayer(), renderStats);
 }
 
 nextTurnButton.addEventListener('click', nextPlayerTurn);
 buyTurnButton.addEventListener('click', buyExtraTurn);
 resetButton.addEventListener('click', resetGame);
+leaveGameButton.addEventListener('click', leaveGameSession);
+window.addEventListener('beforeunload', () => {
+    if (syncTimer) {
+        window.clearInterval(syncTimer);
+    }
+});
 
 initGamePage();

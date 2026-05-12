@@ -1,0 +1,50 @@
+services:
+  db:
+    image: mirror.gcr.io/library/postgres:16-alpine
+    container_name: gamebase
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: smoz1e_admin
+      POSTGRES_PASSWORD: o29I16m09
+      POSTGRES_DB: gamebase
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - gamebase-net
+      
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    image: gamebase-backend:latest
+    container_name: gamebase-backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    ports:
+      - "8001:8001"
+    networks:
+      - gamebase-net
+    depends_on:
+      - db
+
+  nginx:
+    image: mirror.gcr.io/library/nginx:1.27-alpine
+    container_name: gamebase-nginx
+    restart: unless-stopped
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+    ports:
+      - "127.0.0.1:8080:80"
+    networks:
+      - gamebase-net
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+
+networks:
+  gamebase-net:
+    driver: bridge
