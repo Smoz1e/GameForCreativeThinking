@@ -11,7 +11,15 @@ Use the example config in [deploy/nginx/career-map.ru.conf](deploy/nginx/career-
 ### Server steps
 
 1. Copy [deploy/nginx/career-map.ru.conf](deploy/nginx/career-map.ru.conf) into the host nginx sites directory, for example `/etc/nginx/conf.d/career-map.ru.conf`.
-2. Make sure the SSL certificate exists for `career-map.ru` and points to the paths in the config.
-3. Verify the config with `nginx -t`.
-4. Reload nginx with `systemctl reload nginx`.
-5. Start the app stack with `docker compose up -d` in this project.
+2. Issue the certificate with certbot:
+
+	```bash
+	sudo certbot --nginx -d career-map.ru
+	```
+
+	The domain must already have an A record pointing to `217.76.176.112`; otherwise certbot will fail with `NXDOMAIN`.
+	If the host nginx is not managing this site yet, use webroot or standalone mode instead.
+3. Make sure the SSL paths in [deploy/nginx/career-map.ru.conf](deploy/nginx/career-map.ru.conf) match the certificate files created by certbot.
+4. Verify the config with `nginx -t`.
+5. Reload nginx with `systemctl reload nginx`.
+6. Start the app stack with `docker compose up -d` in this project.

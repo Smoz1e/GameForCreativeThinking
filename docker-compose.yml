@@ -22,7 +22,7 @@ services:
     env_file:
       - ./backend/.env
     ports:
-      - "8001:8001"
+      - "8002:8001"
     networks:
       - gamebase-net
     depends_on:
