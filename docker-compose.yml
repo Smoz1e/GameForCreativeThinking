@@ -7,8 +7,7 @@ services:
       POSTGRES_USER: smoz1e_admin
       POSTGRES_PASSWORD: o29I16m09
     volumes:
-      - "127.0.0.1:8081:80"
-      - gamebase-net
+      - postgres_data:/var/lib/postgresql/data
       
   backend:
     build:
