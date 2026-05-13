@@ -8,6 +8,8 @@ services:
       POSTGRES_PASSWORD: o29I16m09
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - gamebase-net
       
   backend:
     build:
