@@ -6,6 +6,7 @@ services:
     environment:
       POSTGRES_USER: smoz1e_admin
       POSTGRES_PASSWORD: o29I16m09
+      POSTGRES_DB: gamebase
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
