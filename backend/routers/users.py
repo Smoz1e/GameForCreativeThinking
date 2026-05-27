@@ -93,6 +93,61 @@ def write_game_state(game: GameMap, state: dict) -> None:
     game.player_count = len(state.get('players', []))
 
 
+def sanitize_game_state(db, game: GameMap, state: dict) -> dict:
+    db_players = (
+        db.query(Users)
+        .filter(Users.game_key == game.key)
+        .order_by(Users.id)
+        .all()
+    )
+    players_by_id = {player.id: player for player in db_players}
+    players_by_name = {player.username: player for player in db_players}
+    old_players = state.get('players', [])
+    active_index = int(state.get('activePlayerIndex', 0) or 0)
+    day_starter_index = int(state.get('dayStarterIndex', 0) or 0)
+    active_player = old_players[active_index] if 0 <= active_index < len(old_players) else None
+    day_starter_player = old_players[day_starter_index] if 0 <= day_starter_index < len(old_players) else None
+
+    sanitized_players = []
+    seen_ids = set()
+    for entry in old_players:
+        player = players_by_id.get(entry.get('id')) or players_by_name.get(entry.get('name'))
+        if player is None or player.id in seen_ids:
+            continue
+
+        clean_entry = dict(entry)
+        clean_entry['id'] = player.id
+        clean_entry['name'] = player.username
+        sanitized_players.append(clean_entry)
+        seen_ids.add(player.id)
+
+    for player in db_players:
+        if player.id not in seen_ids:
+            sanitized_players.append(default_player_state(player.id, player.username))
+
+    state['players'] = sanitized_players
+    state['gameKey'] = game.key
+    state['ownerName'] = game.owner_name
+
+    def normalized_index(current_index: int, previous_player) -> int:
+        if not sanitized_players:
+            return 0
+
+        previous_id = previous_player.get('id') if previous_player else None
+        previous_name = previous_player.get('name') if previous_player else None
+        for index, player_state in enumerate(sanitized_players):
+            if previous_id is not None and player_state.get('id') == previous_id:
+                return index
+            if previous_name is not None and player_state.get('name') == previous_name:
+                return index
+
+        return min(max(current_index, 0), len(sanitized_players) - 1)
+
+    state['activePlayerIndex'] = normalized_index(active_index, active_player)
+    state['dayStarterIndex'] = normalized_index(day_starter_index, day_starter_player)
+    return state
+
+
 @router.post("/games/create")
 def create_game(payload: CreateGameRequest):
     db = SessionLocal()
@@ -149,10 +204,8 @@ def join_game(payload: JoinGameRequest):
         db.add(player)
         db.commit()
         db.refresh(player)
-        state = read_game_state(game)
+        state = sanitize_game_state(db, game, read_game_state(game))
         players = state.get('players', [])
-        players.append(default_player_state(player.id, player.username, position_id=1))
-        state['players'] = players
         if state.get('activePlayerIndex', 0) >= len(players):
             state['activePlayerIndex'] = 0
         if state.get('dayStarterIndex', 0) >= len(players):
@@ -181,8 +234,9 @@ def get_game(game_key: str):
         if game is None:
             raise HTTPException(status_code=404, detail="game_not_found")
 
-        state = read_game_state(game)
+        state = sanitize_game_state(db, game, read_game_state(game))
         player_count = sync_player_count(db, game)
+        write_game_state(game, state)
         db.commit()
 
         return {
@@ -204,9 +258,7 @@ def update_game_state(payload: StateUpdateRequest):
         if game is None:
             raise HTTPException(status_code=404, detail="game_not_found")
 
-        state = payload.state
-        state['gameKey'] = game.key
-        state['ownerName'] = game.owner_name
+        state = sanitize_game_state(db, game, payload.state)
         write_game_state(game, state)
         db.commit()
 
@@ -236,11 +288,9 @@ def leave_game(payload: LeaveGameRequest):
         db.delete(player)
         db.flush()
 
-        state = read_game_state(game)
-        state_players = [entry for entry in state.get('players', []) if entry.get('name') != username]
-        state['players'] = state_players
+        state = sanitize_game_state(db, game, read_game_state(game))
 
-        remaining_players = len(state_players)
+        remaining_players = len(state.get('players', []))
         if remaining_players == 0:
             db.delete(game)
             db.commit()

@@ -1,5 +1,4 @@
 const sectorDefinitions = [
-    { id: 1, name: 'Стартовый Квартал', type: 'rest', workMoney: 40, workTime: 3, workEnergy: -12, workSkill: 0.02, studyCost: 25, studyTime: 3, studyEnergy: -8, studySkill: 0.15 },
     { id: 2, name: 'Офисный Узел', type: 'work', workMoney: 100, workTime: 7, workEnergy: 15, workSkill: 0.08, studyCost: 70, studyTime: 5, studyEnergy: 11, studySkill: 0.35 },
     { id: 3, name: 'Учебный Центр', type: 'study', workMoney: 70, workTime: 5, workEnergy: 10, workSkill: 0.05, studyCost: 90, studyTime: 7, studyEnergy: 13, studySkill: 0.8 },
     { id: 4, name: 'Сервисный Парк', type: 'mixed', workMoney: 90, workTime: 6, workEnergy: 12, workSkill: 0.1, studyCost: 60, studyTime: 5, studyEnergy: 10, studySkill: 0.45 },
@@ -23,8 +22,34 @@ const sectorDefinitions = [
     { id: 22, name: 'Медиа Агентство', type: 'mixed', workMoney: 128, workTime: 8, workEnergy: 17, workSkill: 0.13, studyCost: 85, studyTime: 6, studyEnergy: 12, studySkill: 0.55 },
     { id: 23, name: 'Soft Skills Hub', type: 'study', workMoney: 72, workTime: 5, workEnergy: 10, workSkill: 0.05, studyCost: 65, studyTime: 6, studyEnergy: 11, studySkill: 0.7 },
     { id: 24, name: 'HR Центр', type: 'work', workMoney: 118, workTime: 8, workEnergy: 16, workSkill: 0.09, studyCost: 70, studyTime: 5, studyEnergy: 10, studySkill: 0.42, minSkillForWork: 2.0 },
-    { id: 25, name: 'Парк Восстановления', type: 'rest', workMoney: 40, workTime: 3, workEnergy: -22, workSkill: 0.02, studyCost: 30, studyTime: 3, studyEnergy: -12, studySkill: 0.15 },
+    { id: 48, name: 'Аналитический Отдел', type: 'work', workMoney: 108, workTime: 8, workEnergy: 16, workSkill: 0.1, studyCost: 75, studyTime: 6, studyEnergy: 11, studySkill: 0.45 },
+    { id: 26, name: 'Код-Лаборатория', type: 'study', workMoney: 82, workTime: 6, workEnergy: 12, workSkill: 0.08, studyCost: 125, studyTime: 8, studyEnergy: 15, studySkill: 1.05 },
+    { id: 27, name: 'Маркетинг Хаб', type: 'mixed', workMoney: 122, workTime: 8, workEnergy: 17, workSkill: 0.14, studyCost: 90, studyTime: 6, studyEnergy: 12, studySkill: 0.6 },
+    { id: 28, name: 'Биржа Проектов', type: 'network', workMoney: 102, workTime: 7, workEnergy: 15, workSkill: 0.1, studyCost: 65, studyTime: 5, studyEnergy: 9, studySkill: 0.45 },
+    { id: 29, name: 'Технопарк', type: 'mixed', workMoney: 138, workTime: 9, workEnergy: 20, workSkill: 0.17, studyCost: 105, studyTime: 7, studyEnergy: 14, studySkill: 0.75, minSkillForWork: 2.6 },
+    { id: 30, name: 'Школа Переговоров', type: 'study', workMoney: 74, workTime: 5, workEnergy: 10, workSkill: 0.05, studyCost: 70, studyTime: 6, studyEnergy: 11, studySkill: 0.72 },
+    { id: 31, name: 'Логистический Центр', type: 'work', workMoney: 112, workTime: 8, workEnergy: 17, workSkill: 0.09, studyCost: 60, studyTime: 5, studyEnergy: 10, studySkill: 0.35 },
+    { id: 32, name: 'Дизайн Студия', type: 'mixed', workMoney: 116, workTime: 7, workEnergy: 15, workSkill: 0.13, studyCost: 85, studyTime: 6, studyEnergy: 12, studySkill: 0.62 },
+    { id: 33, name: 'Клуб Менторов', type: 'network', workMoney: 92, workTime: 6, workEnergy: 12, workSkill: 0.11, studyCost: 58, studyTime: 5, studyEnergy: 9, studySkill: 0.5 },
+    { id: 34, name: 'Продуктовая Команда', type: 'mixed', workMoney: 142, workTime: 9, workEnergy: 21, workSkill: 0.19, studyCost: 115, studyTime: 8, studyEnergy: 15, studySkill: 0.82, minSkillForWork: 3.1 },
+    { id: 35, name: 'Центр Сертификации', type: 'study', workMoney: 86, workTime: 6, workEnergy: 12, workSkill: 0.07, studyCost: 140, studyTime: 9, studyEnergy: 17, studySkill: 1.15 },
+    { id: 36, name: 'Фриланс Биржа', type: 'work', workMoney: 126, workTime: 8, workEnergy: 18, workSkill: 0.12, studyCost: 55, studyTime: 5, studyEnergy: 9, studySkill: 0.38 },
+    { id: 37, name: 'Исследовательский Центр', type: 'study', workMoney: 76, workTime: 5, workEnergy: 11, workSkill: 0.06, studyCost: 118, studyTime: 8, studyEnergy: 15, studySkill: 1.02 },
+    { id: 38, name: 'Акселератор', type: 'mixed', workMoney: 150, workTime: 9, workEnergy: 22, workSkill: 0.21, studyCost: 130, studyTime: 8, studyEnergy: 16, studySkill: 0.9, minSkillForWork: 4.0 },
+    { id: 39, name: 'Отдел Поддержки', type: 'work', workMoney: 98, workTime: 7, workEnergy: 15, workSkill: 0.08, studyCost: 62, studyTime: 5, studyEnergy: 9, studySkill: 0.36 },
+    { id: 40, name: 'Публичные Выступления', type: 'study', workMoney: 80, workTime: 6, workEnergy: 12, workSkill: 0.06, studyCost: 88, studyTime: 7, studyEnergy: 13, studySkill: 0.86 },
+    { id: 41, name: 'Партнерский Офис', type: 'network', workMoney: 118, workTime: 7, workEnergy: 16, workSkill: 0.13, studyCost: 82, studyTime: 6, studyEnergy: 11, studySkill: 0.58 },
+    { id: 42, name: 'QA Полигон', type: 'mixed', workMoney: 120, workTime: 8, workEnergy: 17, workSkill: 0.15, studyCost: 95, studyTime: 7, studyEnergy: 13, studySkill: 0.78, minSkillForWork: 2.4 },
+    { id: 43, name: 'Финтех Команда', type: 'work', workMoney: 148, workTime: 9, workEnergy: 22, workSkill: 0.16, studyCost: 110, studyTime: 7, studyEnergy: 14, studySkill: 0.68, minSkillForWork: 3.6 },
+    { id: 44, name: 'Кампус Лидерства', type: 'study', workMoney: 84, workTime: 6, workEnergy: 12, workSkill: 0.07, studyCost: 100, studyTime: 8, studyEnergy: 14, studySkill: 0.98 },
+    { id: 45, name: 'Консалтинг Бюро', type: 'mixed', workMoney: 136, workTime: 8, workEnergy: 19, workSkill: 0.18, studyCost: 108, studyTime: 7, studyEnergy: 13, studySkill: 0.74, minSkillForWork: 3.0 },
+    { id: 46, name: 'Комьюнити Центр', type: 'network', workMoney: 90, workTime: 6, workEnergy: 12, workSkill: 0.1, studyCost: 50, studyTime: 4, studyEnergy: 8, studySkill: 0.42 },
+    { id: 47, name: 'Корпоративная Академия', type: 'study', workMoney: 92, workTime: 6, workEnergy: 13, workSkill: 0.08, studyCost: 145, studyTime: 9, studyEnergy: 18, studySkill: 1.18 },
 ];
+
+const MAP_CARD_COUNT = 23;
+let playableSectorDefinitions = sectorDefinitions.slice(0, MAP_CARD_COUNT);
+let FIRST_PLAYABLE_SECTOR_ID = playableSectorDefinitions[0]?.id ?? 1;
 
 const mapElement = document.getElementById('cityMap');
 const sectorInfoElement = document.getElementById('sectorInfo');
@@ -38,7 +63,7 @@ const careerValue = document.getElementById('careerValue');
 const currentPlayerValue = document.getElementById('currentPlayerValue');
 const dayStarterValue = document.getElementById('dayStarterValue');
 const turnsLeftValue = document.getElementById('turnsLeftValue');
-const playersBoard = document.getElementById('playersBoard');
+const moneyLeaderboard = document.getElementById('moneyLeaderboard');
 const gameKeyValue = document.getElementById('gameKeyValue');
 const leaveGameButton = document.getElementById('leaveGameButton');
 const nextTurnButton = document.getElementById('nextTurnButton');
@@ -63,6 +88,39 @@ function getPlayerName(player) {
     return player?.name || player?.username || '';
 }
 
+function hashString(value) {
+    let hash = 2166136261;
+    for (let index = 0; index < value.length; index += 1) {
+        hash ^= value.charCodeAt(index);
+        hash = Math.imul(hash, 16777619);
+    }
+    return hash >>> 0;
+}
+
+function seededRandom(seed) {
+    let state = seed || 1;
+    return () => {
+        state = Math.imul(state ^ (state >>> 15), 1 | state);
+        state ^= state + Math.imul(state ^ (state >>> 7), 61 | state);
+        return ((state ^ (state >>> 14)) >>> 0) / 4294967296;
+    };
+}
+
+function shuffleWithSeed(items, seedText) {
+    const random = seededRandom(hashString(seedText));
+    const shuffledItems = [...items];
+    for (let index = shuffledItems.length - 1; index > 0; index -= 1) {
+        const targetIndex = Math.floor(random() * (index + 1));
+        [shuffledItems[index], shuffledItems[targetIndex]] = [shuffledItems[targetIndex], shuffledItems[index]];
+    }
+    return shuffledItems;
+}
+
+function configurePlayableSectors(gameKey) {
+    playableSectorDefinitions = shuffleWithSeed(sectorDefinitions, gameKey).slice(0, MAP_CARD_COUNT);
+    FIRST_PLAYABLE_SECTOR_ID = playableSectorDefinitions[0]?.id ?? 1;
+}
+
 function normalizePlayer(player, index = 0) {
     return {
         id: player.id,
@@ -76,7 +134,7 @@ function normalizePlayer(player, index = 0) {
         studiedThisWeek: Number(player.studiedThisWeek ?? 0),
         turnsLeft: Number(player.turnsLeft ?? 1),
         extraTurnPrice: Number(player.extraTurnPrice ?? 120),
-        positionId: Number(player.positionId ?? 1),
+        positionId: normalizeSectorId(Number(player.positionId ?? FIRST_PLAYABLE_SECTOR_ID)),
         _index: index,
     };
 }
@@ -101,8 +159,11 @@ function serializePlayer(player) {
 function applyState(state) {
     gameState.day = Number(state.day ?? 1);
     gameState.activePlayerIndex = Number(state.activePlayerIndex ?? 0);
-    gameState.dayStarterIndex = Number(state.dayStarterIndex ?? 0);
     gameState.players = (state.players || []).map((player, index) => normalizePlayer(player, index));
+    if (gameState.activePlayerIndex >= gameState.players.length) {
+        gameState.activePlayerIndex = 0;
+    }
+    gameState.dayStarterIndex = 0;
 }
 
 function statePayload() {
@@ -119,7 +180,15 @@ function getActivePlayer() {
 }
 
 function getSectorById(id) {
-    return sectorDefinitions.find((sector) => sector.id === id);
+    return playableSectorDefinitions.find((sector) => sector.id === id);
+}
+
+function normalizeSectorId(id) {
+    return getSectorById(id) ? id : FIRST_PLAYABLE_SECTOR_ID;
+}
+
+function getSectorIndex(id) {
+    return playableSectorDefinitions.findIndex((sector) => sector.id === id);
 }
 
 function getCurrentSector(player) {
@@ -127,28 +196,40 @@ function getCurrentSector(player) {
 }
 
 function getNextSectorId(currentId) {
-    return currentId >= sectorDefinitions.length ? 1 : currentId + 1;
+    const currentIndex = getSectorIndex(currentId);
+    if (currentIndex === -1) {
+        return FIRST_PLAYABLE_SECTOR_ID;
+    }
+    return playableSectorDefinitions[(currentIndex + 1) % playableSectorDefinitions.length].id;
 }
 
 function getPrevSectorId(currentId) {
-    return currentId <= 1 ? sectorDefinitions.length : currentId - 1;
+    const currentIndex = getSectorIndex(currentId);
+    if (currentIndex === -1) {
+        return FIRST_PLAYABLE_SECTOR_ID;
+    }
+    return playableSectorDefinitions[(currentIndex - 1 + playableSectorDefinitions.length) % playableSectorDefinitions.length].id;
 }
 
 function getUpSectorId(currentId) {
-    const upId = currentId - MAP_SIZE;
-    return upId >= 1 ? upId : null;
+    const currentIndex = getSectorIndex(currentId);
+    const upIndex = currentIndex - MAP_SIZE;
+    return upIndex >= 0 ? playableSectorDefinitions[upIndex].id : null;
 }
 
 function getDownSectorId(currentId) {
-    const downId = currentId + MAP_SIZE;
-    return downId <= sectorDefinitions.length ? downId : null;
+    const currentIndex = getSectorIndex(currentId);
+    const downIndex = currentIndex + MAP_SIZE;
+    return downIndex < playableSectorDefinitions.length ? playableSectorDefinitions[downIndex].id : null;
 }
 
 function getDistanceBetweenSectors(fromId, toId) {
-    const fromRow = Math.floor((fromId - 1) / MAP_SIZE);
-    const fromCol = (fromId - 1) % MAP_SIZE;
-    const toRow = Math.floor((toId - 1) / MAP_SIZE);
-    const toCol = (toId - 1) % MAP_SIZE;
+    const fromIndex = Math.max(0, getSectorIndex(fromId));
+    const toIndex = Math.max(0, getSectorIndex(toId));
+    const fromRow = Math.floor(fromIndex / MAP_SIZE);
+    const fromCol = fromIndex % MAP_SIZE;
+    const toRow = Math.floor(toIndex / MAP_SIZE);
+    const toCol = toIndex % MAP_SIZE;
     return Math.max(1, Math.abs(fromRow - toRow) + Math.abs(fromCol - toCol));
 }
 
@@ -188,25 +269,33 @@ async function apiFetch(path, options = {}) {
     return data;
 }
 
-function renderPlayersBoard() {
-    playersBoard.innerHTML = '';
+function renderMoneyLeaderboard() {
+    moneyLeaderboard.innerHTML = '';
     if (!gameState.players.length) {
-        const row = document.createElement('li');
-        row.textContent = 'Пока нет подключенных игроков';
-        playersBoard.appendChild(row);
+        const row = document.createElement('tr');
+        row.innerHTML = '<td colspan="3">Пока нет подключенных игроков</td>';
+        moneyLeaderboard.appendChild(row);
         return;
     }
 
-    gameState.players.forEach((player, index) => {
-        const row = document.createElement('li');
-        if (index === gameState.activePlayerIndex) {
+    const sortedPlayers = [...gameState.players].sort((firstPlayer, secondPlayer) => {
+        if (secondPlayer.money !== firstPlayer.money) {
+            return secondPlayer.money - firstPlayer.money;
+        }
+        return firstPlayer._index - secondPlayer._index;
+    });
+
+    sortedPlayers.forEach((player, index) => {
+        const row = document.createElement('tr');
+        if (player._index === gameState.activePlayerIndex) {
             row.classList.add('active-player');
         }
-        if (index === gameState.dayStarterIndex) {
-            row.classList.add('day-starter');
-        }
-        row.innerHTML = `<span>${player.name}</span><span>$${player.money} | Навык ${player.skill.toFixed(1)} | Ходы ${player.turnsLeft}</span>`;
-        playersBoard.appendChild(row);
+        row.innerHTML = `
+            <td>#${index + 1}</td>
+            <td>${player.name}</td>
+            <td>$${player.money}</td>
+        `;
+        moneyLeaderboard.appendChild(row);
     });
 }
 
@@ -269,7 +358,7 @@ function renderStats() {
         turnsLeftValue.textContent = '0';
         buyTurnButton.textContent = '⭐ Купить ход';
         nextTurnButton.textContent = '➡️ Передать ход';
-        renderPlayersBoard();
+        renderMoneyLeaderboard();
         renderMapState();
         return;
     }
@@ -285,7 +374,7 @@ function renderStats() {
     turnsLeftValue.textContent = String(player.turnsLeft);
     buyTurnButton.textContent = `⭐ Купить ход (${player.extraTurnPrice})`;
     nextTurnButton.textContent = '➡️ Передать ход';
-    renderPlayersBoard();
+    renderMoneyLeaderboard();
     renderMapState();
 }
 
@@ -297,6 +386,12 @@ function renderSectorInfo() {
         return;
     }
 
+    const workThreshold = Number(sector.minSkillForWork || 0);
+    const isWorkLocked = player.skill < workThreshold;
+    const thresholdText = workThreshold > 0
+        ? `${workThreshold.toFixed(1)} (у вас ${player.skill.toFixed(1)})`
+        : 'нет';
+
     sectorInfoElement.innerHTML = `
         <h4>${sector.name}</h4>
         <p>Игрок: <strong>${player.name}</strong></p>
@@ -305,10 +400,15 @@ function renderSectorInfo() {
             <p>Учеба: +${sector.studySkill} к навыку</p>
             <p>Время: ${sector.workTime}ч</p>
             <p>Энергия: -${Math.max(0, sector.workEnergy)}</p>
-            <p>Порог работы: ${sector.minSkillForWork ? sector.minSkillForWork.toFixed(1) : 'нет'}</p>
+            <p class="${isWorkLocked ? 'locked-threshold' : ''}">Порог работы: ${thresholdText}</p>
         </div>
         <div class="action-buttons">
-            <button id="workButton" class="invest-button action-work" type="button">💼 Работать</button>
+            <button
+                id="workButton"
+                class="invest-button action-work"
+                type="button"
+                ${isWorkLocked ? 'disabled title="Недостаточно квалификации для работы на этой клетке"' : ''}
+            >💼 Работать</button>
             <button id="studyButton" class="invest-button action-study" type="button">📚 Учиться</button>
         </div>
     `;
@@ -317,12 +417,17 @@ function renderSectorInfo() {
     document.getElementById('studyButton').addEventListener('click', doStudy);
 }
 
+function renderGameView() {
+    renderStats();
+    renderSectorInfo();
+}
+
 function renderTransitionSector(player) {
     const sector = getCurrentSector(player);
     if (!sector) {
         return;
     }
-    const icons = { work: '💼', study: '📚', mixed: '🎯', network: '🤝', rest: '🏖️' };
+    const icons = { work: '💼', study: '📚', mixed: '🎯', network: '🤝' };
     const overlayText = turnTransitionOverlay.querySelector('.turn-transition-label');
     if (overlayText) {
         overlayText.textContent = `Игрок ${player.name} находится здесь`;
@@ -414,12 +519,12 @@ function doWork() {
     if (!player || !sector) {
         return;
     }
-    if (!consumeTurn(player)) {
+    if (player.skill < (sector.minSkillForWork || 0)) {
+        addLog(`${player.name}: для работы в "${sector.name}" нужна квалификация ${sector.minSkillForWork.toFixed(1)}.`, 'warning');
+        renderSectorInfo();
         return;
     }
-    if (player.skill < (sector.minSkillForWork || 0)) {
-        player.turnsLeft += 1;
-        addLog(`${player.name}: для работы в "${sector.name}" нужна квалификация ${sector.minSkillForWork.toFixed(1)}.`, 'warning');
+    if (!consumeTurn(player)) {
         return;
     }
     if (player.money < 0) {
@@ -440,7 +545,7 @@ function doWork() {
     player.career += 1;
     player.workedThisWeek += 1;
     addLog(`${player.name} работает в "${sector.name}": +${income} денег.`, 'positive');
-    saveRoomState().finally(() => renderStats());
+    saveRoomState().finally(renderGameView);
 }
 
 function doStudy() {
@@ -464,7 +569,7 @@ function doStudy() {
     player.career += 2;
     player.studiedThisWeek += 1;
     addLog(`${player.name} учится в "${sector.name}": -${sector.studyCost} денег, +${sector.studySkill.toFixed(2)} к навыку.`, 'positive');
-    saveRoomState().finally(() => renderStats());
+    saveRoomState().finally(renderGameView);
 }
 
 function moveToSector(sectorId) {
@@ -494,7 +599,7 @@ function moveToSector(sectorId) {
     player.time -= moveTimeCost;
     player.energy = Math.max(0, player.energy - moveEnergyCost);
     addLog(`${player.name} перемещается: "${prevSectorName}" → "${getCurrentSector(player).name}".`, 'positive');
-    saveRoomState().finally(() => renderStats());
+    saveRoomState().finally(renderGameView);
 }
 
 function applyDailyMaintenance(player) {
@@ -523,17 +628,16 @@ function nextPlayerTurn() {
         return;
     }
     let nextIndex = (gameState.activePlayerIndex + 1) % gameState.players.length;
-    if (nextIndex === gameState.dayStarterIndex) {
+    if (nextIndex === 0) {
         gameState.day += 1;
         gameState.players.forEach(applyDailyMaintenance);
-        gameState.dayStarterIndex = (gameState.dayStarterIndex + 1) % gameState.players.length;
-        nextIndex = gameState.dayStarterIndex;
         addLog(`Новый день начался. Первым ходит ${gameState.players[nextIndex].name}.`, 'positive');
     }
+    gameState.dayStarterIndex = 0;
     gameState.activePlayerIndex = nextIndex;
     saveRoomState().finally(() => {
-        renderStats();
-        showTurnTransition(getActivePlayer(), renderStats);
+        renderGameView();
+        showTurnTransition(getActivePlayer(), renderGameView);
     });
 }
 
@@ -550,7 +654,7 @@ function buyExtraTurn() {
     player.turnsLeft += 1;
     player.extraTurnPrice += 60;
     addLog(`${player.name} покупает дополнительный ход.`, 'positive');
-    saveRoomState().finally(() => renderStats());
+    saveRoomState().finally(renderGameView);
 }
 
 function resetGame() {
@@ -570,20 +674,20 @@ function resetGame() {
         player.studiedThisWeek = 0;
         player.turnsLeft = 1;
         player.extraTurnPrice = 120;
-        player.positionId = 1;
+        player.positionId = FIRST_PLAYABLE_SECTOR_ID;
     });
     eventLogElement.innerHTML = '';
-    addLog('Сессия сброшена. Игроки начинают маршрут с места #1.');
+    addLog(`Сессия сброшена. Игроки начинают маршрут с "${getSectorById(FIRST_PLAYABLE_SECTOR_ID).name}".`);
     saveRoomState().finally(() => {
-        renderStats();
-        showTurnTransition(getActivePlayer(), renderStats);
+        renderGameView();
+        showTurnTransition(getActivePlayer(), renderGameView);
     });
 }
 
 function buildMap() {
-    const typeIcons = { work: '💼', study: '📚', mixed: '🎯', network: '🤝', rest: '🏖️' };
+    const typeIcons = { work: '💼', study: '📚', mixed: '🎯', network: '🤝' };
     mapElement.innerHTML = '';
-    sectorDefinitions.forEach((sector) => {
+    playableSectorDefinitions.forEach((sector) => {
         const sectorElement = document.createElement('button');
         sectorElement.type = 'button';
         sectorElement.className = `sector type-${sector.type}`;
@@ -591,7 +695,6 @@ function buildMap() {
         sectorElement.innerHTML = `
             <span class="sector-icon">${typeIcons[sector.type] || '📍'}</span>
             <span class="sector-name">${sector.name}</span>
-            <span class="sector-meta">Работа: +${sector.workMoney} | Учеба: +${sector.studySkill}</span>
             <div class="player-markers"></div>
         `;
         sectorElement.addEventListener('click', () => moveToSector(sector.id));
@@ -609,6 +712,7 @@ async function loadGameSession() {
     if (gameKeyValue) {
         gameKeyValue.textContent = gameKey;
     }
+    configurePlayableSectors(gameKey);
 
     const response = await fetch(`/api/games/${encodeURIComponent(gameKey)}`);
     if (!response.ok) {
@@ -647,8 +751,7 @@ async function periodicSync() {
     try {
         const ok = await syncRoomState();
         if (ok) {
-            renderStats();
-            renderSectorInfo();
+            renderGameView();
         }
     } catch (_) {
         // ignore temporary network errors
@@ -656,19 +759,18 @@ async function periodicSync() {
 }
 
 async function initGamePage() {
-    buildMap();
     const loaded = await loadGameSession();
     if (!loaded) {
         return;
     }
-    renderStats();
-    renderSectorInfo();
+    buildMap();
+    renderGameView();
     if (syncTimer) {
         window.clearInterval(syncTimer);
     }
     syncTimer = window.setInterval(periodicSync, 2000);
     addLog('Игра запущена. Состояние синхронизируется через backend.', 'positive');
-    showTurnTransition(getActivePlayer(), renderStats);
+    showTurnTransition(getActivePlayer(), renderGameView);
 }
 
 nextTurnButton.addEventListener('click', nextPlayerTurn);

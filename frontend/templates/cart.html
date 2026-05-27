@@ -21,10 +21,6 @@
         </div>
         <div class="brand-metrics" aria-label="Сводка игрока">
             <div class="brand-metric">
-                <span>Мои звезды⭐</span>
-                <strong id="starsValue">0</strong>
-            </div>
-            <div class="brand-metric">
                 <span>Ходов сделано🚶‍♂️‍➡️</span>
                 <strong id="movesMadeValue">0</strong>
             </div>
@@ -73,8 +69,6 @@
         <div class="actions">
             <button id="resetButton" type="button" class="ghost">🔄 Сброс</button>
         </div>
-        <h3 class="players-title">Игроки</h3>
-        <ul id="playersBoard" class="players-board"></ul>
     </section>
 
     <section class="panel map-panel" aria-label="Карта возможностей">
@@ -88,7 +82,6 @@
             <span class="legend-item"><i class="dot type-study"></i>📚 Образование</span>
             <span class="legend-item"><i class="dot type-mixed"></i>🎯 Смешанная</span>
             <span class="legend-item"><i class="dot type-network"></i>🤝 Связи</span>
-            <span class="legend-item"><i class="dot type-rest"></i>🏖️ Отдых</span>
         </div>
     </section>
 
@@ -97,6 +90,23 @@
         <div id="sectorInfo" class="sector-info">
             <p>Здесь появится информация о месте, где сейчас находится активный игрок.</p>
         </div>
+        <section class="leaderboard-panel" aria-label="Топ игроков по количеству денег">
+            <h3>Топ по деньгам</h3>
+            <table class="money-leaderboard">
+                <thead>
+                    <tr>
+                        <th>Место</th>
+                        <th>Игрок</th>
+                        <th>Деньги</th>
+                    </tr>
+                </thead>
+                <tbody id="moneyLeaderboard">
+                    <tr>
+                        <td colspan="3">Пока нет подключенных игроков</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
         <h3>Журнал</h3>
         <ul id="eventLog" class="event-log"></ul>
     </aside>
@@ -112,4 +122,3 @@
 <script src="/static/cart.js"></script>
 </body>
 </html>
-
