@@ -1,34 +1,65 @@
-const sectorDefinitions = [
-    { id: 1, name: 'Стартовый Квартал', type: 'rest', workMoney: 40, workTime: 3, workEnergy: -12, workSkill: 0.02, studyCost: 25, studyTime: 3, studyEnergy: -8, studySkill: 0.15 },
-    { id: 2, name: 'Офисный Узел', type: 'work', workMoney: 100, workTime: 7, workEnergy: 15, workSkill: 0.08, studyCost: 70, studyTime: 5, studyEnergy: 11, studySkill: 0.35 },
-    { id: 3, name: 'Учебный Центр', type: 'study', workMoney: 70, workTime: 5, workEnergy: 10, workSkill: 0.05, studyCost: 90, studyTime: 7, studyEnergy: 13, studySkill: 0.8 },
-    { id: 4, name: 'Сервисный Парк', type: 'mixed', workMoney: 90, workTime: 6, workEnergy: 12, workSkill: 0.1, studyCost: 60, studyTime: 5, studyEnergy: 10, studySkill: 0.45 },
-    { id: 5, name: 'Городской Коворкинг', type: 'network', workMoney: 85, workTime: 6, workEnergy: 11, workSkill: 0.07, studyCost: 55, studyTime: 4, studyEnergy: 8, studySkill: 0.3 },
-    { id: 6, name: 'Площадь Роста', type: 'mixed', workMoney: 110, workTime: 7, workEnergy: 14, workSkill: 0.12, studyCost: 80, studyTime: 6, studyEnergy: 12, studySkill: 0.55 },
-    { id: 7, name: 'Университет', type: 'study', workMoney: 80, workTime: 6, workEnergy: 13, workSkill: 0.06, studyCost: 120, studyTime: 9, studyEnergy: 18, studySkill: 1.1 },
-    { id: 8, name: 'Бизнес-Инкубатор', type: 'mixed', workMoney: 130, workTime: 8, workEnergy: 17, workSkill: 0.14, studyCost: 95, studyTime: 7, studyEnergy: 13, studySkill: 0.65, minSkillForWork: 2.8 },
-    { id: 9, name: 'Продажи', type: 'work', workMoney: 135, workTime: 9, workEnergy: 21, workSkill: 0.09, studyCost: 75, studyTime: 6, studyEnergy: 11, studySkill: 0.4 },
-    { id: 10, name: 'Онлайн Курсы', type: 'study', workMoney: 65, workTime: 5, workEnergy: 10, workSkill: 0.03, studyCost: 40, studyTime: 4, studyEnergy: 8, studySkill: 0.5 },
-    { id: 11, name: 'Стажировка', type: 'mixed', workMoney: 85, workTime: 7, workEnergy: 14, workSkill: 0.2, studyCost: 60, studyTime: 6, studyEnergy: 12, studySkill: 0.7 },
-    { id: 12, name: 'Финансовая Школа', type: 'study', workMoney: 70, workTime: 5, workEnergy: 10, workSkill: 0.06, studyCost: 105, studyTime: 8, studyEnergy: 14, studySkill: 0.95 },
-    { id: 13, name: 'Партнерская Сеть', type: 'network', workMoney: 110, workTime: 7, workEnergy: 16, workSkill: 0.12, studyCost: 80, studyTime: 6, studyEnergy: 12, studySkill: 0.55 },
-    { id: 14, name: 'Проектная Лаба', type: 'mixed', workMoney: 125, workTime: 8, workEnergy: 18, workSkill: 0.18, studyCost: 100, studyTime: 7, studyEnergy: 13, studySkill: 0.8, minSkillForWork: 3.4 },
-    { id: 15, name: 'Карьерный Форум', type: 'network', workMoney: 95, workTime: 6, workEnergy: 13, workSkill: 0.11, studyCost: 55, studyTime: 5, studyEnergy: 9, studySkill: 0.45 },
-    { id: 16, name: 'Сервисный Центр', type: 'work', workMoney: 105, workTime: 8, workEnergy: 17, workSkill: 0.08, studyCost: 75, studyTime: 6, studyEnergy: 11, studySkill: 0.4 },
-    { id: 17, name: 'Data Academy', type: 'study', workMoney: 78, workTime: 5, workEnergy: 11, workSkill: 0.07, studyCost: 115, studyTime: 8, studyEnergy: 15, studySkill: 1.0 },
-    { id: 18, name: 'Стартап Хаб', type: 'mixed', workMoney: 145, workTime: 9, workEnergy: 21, workSkill: 0.2, studyCost: 120, studyTime: 8, studyEnergy: 15, studySkill: 0.85, minSkillForWork: 4.2 },
-    { id: 19, name: 'Нетворкинг Кафе', type: 'network', workMoney: 88, workTime: 6, workEnergy: 12, workSkill: 0.1, studyCost: 45, studyTime: 4, studyEnergy: 8, studySkill: 0.35 },
-    { id: 20, name: 'Гос. Портал Вакансий', type: 'work', workMoney: 115, workTime: 8, workEnergy: 16, workSkill: 0.1, studyCost: 50, studyTime: 5, studyEnergy: 9, studySkill: 0.3 },
-    { id: 21, name: 'MBA Центр', type: 'study', workMoney: 95, workTime: 6, workEnergy: 12, workSkill: 0.08, studyCost: 150, studyTime: 10, studyEnergy: 19, studySkill: 1.2 },
-    { id: 22, name: 'Медиа Агентство', type: 'mixed', workMoney: 128, workTime: 8, workEnergy: 17, workSkill: 0.13, studyCost: 85, studyTime: 6, studyEnergy: 12, studySkill: 0.55 },
-    { id: 23, name: 'Soft Skills Hub', type: 'study', workMoney: 72, workTime: 5, workEnergy: 10, workSkill: 0.05, studyCost: 65, studyTime: 6, studyEnergy: 11, studySkill: 0.7 },
-    { id: 24, name: 'HR Центр', type: 'work', workMoney: 118, workTime: 8, workEnergy: 16, workSkill: 0.09, studyCost: 70, studyTime: 5, studyEnergy: 10, studySkill: 0.42, minSkillForWork: 2.0 },
-    { id: 25, name: 'Парк Восстановления', type: 'rest', workMoney: 40, workTime: 3, workEnergy: -22, workSkill: 0.02, studyCost: 30, studyTime: 3, studyEnergy: -12, studySkill: 0.15 },
+const mapVariants = [
+    [
+        { id: 1, name: 'Стартовый Квартал', type: 'network', workMoney: 40, workTime: 3, workEnergy: 10, workSkill: 0.02, studyCost: 25, studyTime: 3, studyEnergy: 8, studySkill: 0.15 },
+        { id: 2, name: 'Офисный Узел', type: 'work', workMoney: 100, workTime: 7, workEnergy: 15, workSkill: 0.08, studyCost: 70, studyTime: 5, studyEnergy: 11, studySkill: 0.35 },
+        { id: 3, name: 'Учебный Центр', type: 'study', workMoney: 70, workTime: 5, workEnergy: 10, workSkill: 0.05, studyCost: 90, studyTime: 7, studyEnergy: 13, studySkill: 0.8 },
+        { id: 4, name: 'Сервисный Парк', type: 'mixed', workMoney: 90, workTime: 6, workEnergy: 12, workSkill: 0.1, studyCost: 60, studyTime: 5, studyEnergy: 10, studySkill: 0.45 },
+        { id: 5, name: 'Городской Коворкинг', type: 'network', workMoney: 85, workTime: 6, workEnergy: 11, workSkill: 0.07, studyCost: 55, studyTime: 4, studyEnergy: 8, studySkill: 0.3 },
+        { id: 6, name: 'Площадь Роста', type: 'mixed', workMoney: 110, workTime: 7, workEnergy: 14, workSkill: 0.12, studyCost: 80, studyTime: 6, studyEnergy: 12, studySkill: 0.55 },
+        { id: 7, name: 'Университет', type: 'study', workMoney: 80, workTime: 6, workEnergy: 13, workSkill: 0.06, studyCost: 120, studyTime: 9, studyEnergy: 18, studySkill: 1.1 },
+        { id: 8, name: 'Бизнес-Инкубатор', type: 'mixed', workMoney: 130, workTime: 8, workEnergy: 17, workSkill: 0.14, studyCost: 95, studyTime: 7, studyEnergy: 13, studySkill: 0.65, minSkillForWork: 2.8 },
+        { id: 9, name: 'Продажи', type: 'work', workMoney: 135, workTime: 9, workEnergy: 21, workSkill: 0.09, studyCost: 75, studyTime: 6, studyEnergy: 11, studySkill: 0.4 },
+        { id: 10, name: 'Онлайн Курсы', type: 'study', workMoney: 65, workTime: 5, workEnergy: 10, workSkill: 0.03, studyCost: 40, studyTime: 4, studyEnergy: 8, studySkill: 0.5 },
+        { id: 11, name: 'Стажировка', type: 'mixed', workMoney: 85, workTime: 7, workEnergy: 14, workSkill: 0.2, studyCost: 60, studyTime: 6, studyEnergy: 12, studySkill: 0.7 },
+        { id: 12, name: 'Финансовая Школа', type: 'study', workMoney: 70, workTime: 5, workEnergy: 10, workSkill: 0.06, studyCost: 105, studyTime: 8, studyEnergy: 14, studySkill: 0.95 },
+        { id: 13, name: 'Партнерская Сеть', type: 'network', workMoney: 110, workTime: 7, workEnergy: 16, workSkill: 0.12, studyCost: 80, studyTime: 6, studyEnergy: 12, studySkill: 0.55 },
+        { id: 14, name: 'Проектная Лаба', type: 'mixed', workMoney: 125, workTime: 8, workEnergy: 18, workSkill: 0.18, studyCost: 100, studyTime: 7, studyEnergy: 13, studySkill: 0.8, minSkillForWork: 3.4 },
+        { id: 15, name: 'Карьерный Форум', type: 'network', workMoney: 95, workTime: 6, workEnergy: 13, workSkill: 0.11, studyCost: 55, studyTime: 5, studyEnergy: 9, studySkill: 0.45 },
+        { id: 16, name: 'Сервисный Центр', type: 'work', workMoney: 105, workTime: 8, workEnergy: 17, workSkill: 0.08, studyCost: 75, studyTime: 6, studyEnergy: 11, studySkill: 0.4 },
+        { id: 17, name: 'Data Academy', type: 'study', workMoney: 78, workTime: 5, workEnergy: 11, workSkill: 0.07, studyCost: 115, studyTime: 8, studyEnergy: 15, studySkill: 1.0 },
+        { id: 18, name: 'Стартап Хаб', type: 'mixed', workMoney: 145, workTime: 9, workEnergy: 21, workSkill: 0.2, studyCost: 120, studyTime: 8, studyEnergy: 15, studySkill: 0.85, minSkillForWork: 4.2 },
+        { id: 19, name: 'Нетворкинг Кафе', type: 'network', workMoney: 88, workTime: 6, workEnergy: 12, workSkill: 0.1, studyCost: 45, studyTime: 4, studyEnergy: 8, studySkill: 0.35 },
+        { id: 20, name: 'Гос. Портал Вакансий', type: 'work', workMoney: 115, workTime: 8, workEnergy: 16, workSkill: 0.1, studyCost: 50, studyTime: 5, studyEnergy: 9, studySkill: 0.3 },
+        { id: 21, name: 'MBA Центр', type: 'study', workMoney: 95, workTime: 6, workEnergy: 12, workSkill: 0.08, studyCost: 150, studyTime: 10, studyEnergy: 19, studySkill: 1.2 },
+        { id: 22, name: 'Медиа Агентство', type: 'mixed', workMoney: 128, workTime: 8, workEnergy: 17, workSkill: 0.13, studyCost: 85, studyTime: 6, studyEnergy: 12, studySkill: 0.55 },
+        { id: 23, name: 'Soft Skills Hub', type: 'study', workMoney: 72, workTime: 5, workEnergy: 10, workSkill: 0.05, studyCost: 65, studyTime: 6, studyEnergy: 11, studySkill: 0.7 },
+        { id: 24, name: 'HR Центр', type: 'work', workMoney: 118, workTime: 8, workEnergy: 16, workSkill: 0.09, studyCost: 70, studyTime: 5, studyEnergy: 10, studySkill: 0.42, minSkillForWork: 2.0 },
+        { id: 25, name: 'Парк Восстановления', type: 'mixed', workMoney: 40, workTime: 3, workEnergy: 10, workSkill: 0.02, studyCost: 30, studyTime: 3, studyEnergy: 12, studySkill: 0.15 },
+    ],
+    [
+        { id: 1, name: 'Площадь Роста', type: 'mixed', workMoney: 110, workTime: 7, workEnergy: 14, workSkill: 0.12, studyCost: 80, studyTime: 6, studyEnergy: 12, studySkill: 0.55 },
+        { id: 2, name: 'Офисный Узел', type: 'work', workMoney: 100, workTime: 7, workEnergy: 15, workSkill: 0.08, studyCost: 70, studyTime: 5, studyEnergy: 11, studySkill: 0.35 },
+        { id: 3, name: 'Университет', type: 'study', workMoney: 80, workTime: 6, workEnergy: 13, workSkill: 0.06, studyCost: 120, studyTime: 9, studyEnergy: 18, studySkill: 1.1 },
+        { id: 4, name: 'Проектная Лаба', type: 'mixed', workMoney: 125, workTime: 8, workEnergy: 18, workSkill: 0.18, studyCost: 100, studyTime: 7, studyEnergy: 13, studySkill: 0.8, minSkillForWork: 3.4 },
+        { id: 5, name: 'Нетворкинг Кафе', type: 'network', workMoney: 88, workTime: 6, workEnergy: 12, workSkill: 0.1, studyCost: 45, studyTime: 4, studyEnergy: 8, studySkill: 0.35 },
+        { id: 6, name: 'Стартовый Квартал', type: 'network', workMoney: 40, workTime: 3, workEnergy: 10, workSkill: 0.02, studyCost: 25, studyTime: 3, studyEnergy: 8, studySkill: 0.15 },
+        { id: 7, name: 'Продажи', type: 'work', workMoney: 135, workTime: 9, workEnergy: 21, workSkill: 0.09, studyCost: 75, studyTime: 6, studyEnergy: 11, studySkill: 0.4 },
+        { id: 8, name: 'Бизнес-Инкубатор', type: 'mixed', workMoney: 130, workTime: 8, workEnergy: 17, workSkill: 0.14, studyCost: 95, studyTime: 7, studyEnergy: 13, studySkill: 0.65, minSkillForWork: 2.8 },
+        { id: 9, name: 'MBA Центр', type: 'study', workMoney: 95, workTime: 6, workEnergy: 12, workSkill: 0.08, studyCost: 150, studyTime: 10, studyEnergy: 19, studySkill: 1.2 },
+        { id: 10, name: 'Онлайн Курсы', type: 'study', workMoney: 65, workTime: 5, workEnergy: 10, workSkill: 0.03, studyCost: 40, studyTime: 4, studyEnergy: 8, studySkill: 0.5 },
+        { id: 11, name: 'Сервисный Центр', type: 'work', workMoney: 105, workTime: 8, workEnergy: 17, workSkill: 0.08, studyCost: 75, studyTime: 6, studyEnergy: 11, studySkill: 0.4 },
+        { id: 12, name: 'Финансовая Школа', type: 'study', workMoney: 70, workTime: 5, workEnergy: 10, workSkill: 0.06, studyCost: 105, studyTime: 8, studyEnergy: 14, studySkill: 0.95 },
+        { id: 13, name: 'Партнерская Сеть', type: 'network', workMoney: 110, workTime: 7, workEnergy: 16, workSkill: 0.12, studyCost: 80, studyTime: 6, studyEnergy: 12, studySkill: 0.55 },
+        { id: 14, name: 'Карьерный Форум', type: 'network', workMoney: 95, workTime: 6, workEnergy: 13, workSkill: 0.11, studyCost: 55, studyTime: 5, studyEnergy: 9, studySkill: 0.45 },
+        { id: 15, name: 'Data Academy', type: 'study', workMoney: 78, workTime: 5, workEnergy: 11, workSkill: 0.07, studyCost: 115, studyTime: 8, studyEnergy: 15, studySkill: 1.0 },
+        { id: 16, name: 'Медиа Агентство', type: 'mixed', workMoney: 128, workTime: 8, workEnergy: 17, workSkill: 0.13, studyCost: 85, studyTime: 6, studyEnergy: 12, studySkill: 0.55 },
+        { id: 17, name: 'Учебный Центр', type: 'study', workMoney: 70, workTime: 5, workEnergy: 10, workSkill: 0.05, studyCost: 90, studyTime: 7, studyEnergy: 13, studySkill: 0.8 },
+        { id: 18, name: 'Парк Восстановления', type: 'mixed', workMoney: 40, workTime: 3, workEnergy: 10, workSkill: 0.02, studyCost: 30, studyTime: 3, studyEnergy: 12, studySkill: 0.15 },
+        { id: 19, name: 'Городской Коворкинг', type: 'network', workMoney: 85, workTime: 6, workEnergy: 11, workSkill: 0.07, studyCost: 55, studyTime: 4, studyEnergy: 8, studySkill: 0.3 },
+        { id: 20, name: 'Гос. Портал Вакансий', type: 'work', workMoney: 115, workTime: 8, workEnergy: 16, workSkill: 0.1, studyCost: 50, studyTime: 5, studyEnergy: 9, studySkill: 0.3 },
+        { id: 21, name: 'Soft Skills Hub', type: 'study', workMoney: 72, workTime: 5, workEnergy: 10, workSkill: 0.05, studyCost: 65, studyTime: 6, studyEnergy: 11, studySkill: 0.7 },
+        { id: 22, name: 'HR Центр', type: 'work', workMoney: 118, workTime: 8, workEnergy: 16, workSkill: 0.09, studyCost: 70, studyTime: 5, studyEnergy: 10, studySkill: 0.42, minSkillForWork: 2.0 },
+        { id: 23, name: 'Стажировка', type: 'mixed', workMoney: 85, workTime: 7, workEnergy: 14, workSkill: 0.2, studyCost: 60, studyTime: 6, studyEnergy: 12, studySkill: 0.7 },
+        { id: 24, name: 'Сервисный Парк', type: 'mixed', workMoney: 90, workTime: 6, workEnergy: 12, workSkill: 0.1, studyCost: 60, studyTime: 5, studyEnergy: 10, studySkill: 0.45 },
+        { id: 25, name: 'Стартап Хаб', type: 'mixed', workMoney: 145, workTime: 9, workEnergy: 21, workSkill: 0.2, studyCost: 120, studyTime: 8, studyEnergy: 15, studySkill: 0.85, minSkillForWork: 4.2 },
+    ],
 ];
 
+let activeMap = [];
 const mapElement = document.getElementById('cityMap');
 const sectorInfoElement = document.getElementById('sectorInfo');
 const eventLogElement = document.getElementById('eventLog');
+const moneyLeaderboard = document.getElementById('moneyLeaderboard');
 const dayValue = document.getElementById('dayValue');
 const moneyValue = document.getElementById('moneyValue');
 const timeValue = document.getElementById('timeValue');
@@ -102,6 +133,7 @@ function applyState(state) {
     gameState.day = Number(state.day ?? 1);
     gameState.activePlayerIndex = Number(state.activePlayerIndex ?? 0);
     gameState.dayStarterIndex = Number(state.dayStarterIndex ?? 0);
+    gameState.mapVariant = Number(state.mapVariant ?? 0);
     gameState.players = (state.players || []).map((player, index) => normalizePlayer(player, index));
 }
 
@@ -110,6 +142,7 @@ function statePayload() {
         day: gameState.day,
         activePlayerIndex: gameState.activePlayerIndex,
         dayStarterIndex: gameState.dayStarterIndex,
+        mapVariant: Number(gameState.mapVariant ?? 0),
         players: gameState.players.map(serializePlayer),
     };
 }
@@ -118,8 +151,13 @@ function getActivePlayer() {
     return gameState.players[gameState.activePlayerIndex] || null;
 }
 
+function initializeMapVariant() {
+    const variant = Number(gameState.mapVariant ?? 0);
+    activeMap = mapVariants[variant] || mapVariants[0];
+}
+
 function getSectorById(id) {
-    return sectorDefinitions.find((sector) => sector.id === id);
+    return activeMap.find((sector) => sector.id === id);
 }
 
 function getCurrentSector(player) {
@@ -210,6 +248,27 @@ function renderPlayersBoard() {
     });
 }
 
+function renderMoneyLeaderboard() {
+    if (!moneyLeaderboard) {
+        return;
+    }
+    moneyLeaderboard.innerHTML = '';
+    const sorted = [...gameState.players].sort((a, b) => b.money - a.money);
+    if (!sorted.length) {
+        const row = document.createElement('li');
+        row.textContent = 'Нет игроков для рейтинга';
+        moneyLeaderboard.appendChild(row);
+        return;
+    }
+
+    sorted.slice(0, 5).forEach((player, index) => {
+        const row = document.createElement('li');
+        row.className = 'leaderboard-item';
+        row.innerHTML = `<strong>#${index + 1} ${player.name}</strong><span>$${player.money}</span>`;
+        moneyLeaderboard.appendChild(row);
+    });
+}
+
 function renderMapState() {
     const activePlayer = getActivePlayer();
     document.querySelectorAll('.sector').forEach((element) => {
@@ -286,6 +345,7 @@ function renderStats() {
     buyTurnButton.textContent = `⭐ Купить ход (${player.extraTurnPrice})`;
     nextTurnButton.textContent = '➡️ Передать ход';
     renderPlayersBoard();
+    renderMoneyLeaderboard();
     renderMapState();
 }
 
@@ -297,6 +357,10 @@ function renderSectorInfo() {
         return;
     }
 
+    const workCost = sector.workEnergy >= 0 ? `-${sector.workEnergy}` : `+${Math.abs(sector.workEnergy)}`;
+    const studyCost = sector.studyEnergy >= 0 ? `-${sector.studyEnergy}` : `+${Math.abs(sector.studyEnergy)}`;
+    const thresholdText = sector.minSkillForWork ? `<p>Порог работы: ${sector.minSkillForWork.toFixed(1)}</p>` : '';
+
     sectorInfoElement.innerHTML = `
         <h4>${sector.name}</h4>
         <p>Игрок: <strong>${player.name}</strong></p>
@@ -304,8 +368,8 @@ function renderSectorInfo() {
             <p>Работа: +${predictWorkIncome(player, sector)} денег</p>
             <p>Учеба: +${sector.studySkill} к навыку</p>
             <p>Время: ${sector.workTime}ч</p>
-            <p>Энергия: -${Math.max(0, sector.workEnergy)}</p>
-            <p>Порог работы: ${sector.minSkillForWork ? sector.minSkillForWork.toFixed(1) : 'нет'}</p>
+            <p>Энергия: ${workCost}</p>
+            ${thresholdText}
         </div>
         <div class="action-buttons">
             <button id="workButton" class="invest-button action-work" type="button">💼 Работать</button>
@@ -581,9 +645,11 @@ function resetGame() {
 }
 
 function buildMap() {
-    const typeIcons = { work: '💼', study: '📚', mixed: '🎯', network: '🤝', rest: '🏖️' };
+    initializeMapVariant();
+    const typeIcons = { work: '💼', study: '📚', mixed: '🎯', network: '🤝' };
     mapElement.innerHTML = '';
-    sectorDefinitions.forEach((sector) => {
+    activeMap.forEach((sector) => {
+        const requirement = sector.minSkillForWork ? `Треб. ${sector.minSkillForWork.toFixed(1)}` : '';
         const sectorElement = document.createElement('button');
         sectorElement.type = 'button';
         sectorElement.className = `sector type-${sector.type}`;
@@ -591,7 +657,7 @@ function buildMap() {
         sectorElement.innerHTML = `
             <span class="sector-icon">${typeIcons[sector.type] || '📍'}</span>
             <span class="sector-name">${sector.name}</span>
-            <span class="sector-meta">Работа: +${sector.workMoney} | Учеба: +${sector.studySkill}</span>
+            <span class="sector-meta">${requirement}</span>
             <div class="player-markers"></div>
         `;
         sectorElement.addEventListener('click', () => moveToSector(sector.id));
@@ -643,6 +709,19 @@ async function leaveGameSession() {
     window.location.href = '/';
 }
 
+function leaveGameSessionBeacon() {
+    const gameKey = localStorage.getItem('game_key');
+    const playerName = localStorage.getItem('player_name');
+    if (!gameKey || !playerName || !navigator.sendBeacon) {
+        return;
+    }
+    const payload = JSON.stringify({ game_key: gameKey, username: playerName });
+    const blob = new Blob([payload], { type: 'application/json' });
+    navigator.sendBeacon('/api/games/leave', blob);
+    localStorage.removeItem('game_key');
+    localStorage.removeItem('player_name');
+}
+
 async function periodicSync() {
     try {
         const ok = await syncRoomState();
@@ -656,11 +735,11 @@ async function periodicSync() {
 }
 
 async function initGamePage() {
-    buildMap();
     const loaded = await loadGameSession();
     if (!loaded) {
         return;
     }
+    buildMap();
     renderStats();
     renderSectorInfo();
     if (syncTimer) {
@@ -680,5 +759,7 @@ window.addEventListener('beforeunload', () => {
         window.clearInterval(syncTimer);
     }
 });
+
+window.addEventListener('unload', leaveGameSessionBeacon);
 
 initGamePage();

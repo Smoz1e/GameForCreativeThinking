@@ -1,5 +1,6 @@
 from secrets import token_hex
 import json
+from random import randrange
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
@@ -61,7 +62,7 @@ def default_player_state(player_id: int, username: str, position_id: int = 1) ->
     }
 
 
-def default_game_state(game: GameMap, players: list[dict]) -> dict:
+def default_game_state(game: GameMap, players: list[dict], map_variant: int = 0) -> dict:
     return {
         "day": 1,
         "activePlayerIndex": 0,
@@ -69,6 +70,7 @@ def default_game_state(game: GameMap, players: list[dict]) -> dict:
         "players": players,
         "gameKey": game.key,
         "ownerName": game.owner_name,
+        "mapVariant": map_variant,
     }
 
 
@@ -85,6 +87,7 @@ def read_game_state(game: GameMap) -> dict:
     state.setdefault('players', [])
     state.setdefault('gameKey', game.key)
     state.setdefault('ownerName', game.owner_name)
+    state.setdefault('mapVariant', 0)
     return state
 
 
@@ -110,7 +113,8 @@ def create_game(payload: CreateGameRequest):
         db.commit()
         db.refresh(game)
         db.refresh(player)
-        state = default_game_state(game, [default_player_state(player.id, player.username)])
+        map_variant = randrange(2)
+        state = default_game_state(game, [default_player_state(player.id, player.username)], map_variant=map_variant)
         write_game_state(game, state)
         db.commit()
 
@@ -237,6 +241,7 @@ def leave_game(payload: LeaveGameRequest):
         db.flush()
 
         state = read_game_state(game)
+        removed_index = next((index for index, entry in enumerate(state.get('players', [])) if entry.get('name') == username), None)
         state_players = [entry for entry in state.get('players', []) if entry.get('name') != username]
         state['players'] = state_players
 
@@ -249,6 +254,20 @@ def leave_game(payload: LeaveGameRequest):
                 "game_key": normalized_game_key,
                 "remaining_players": 0,
             }
+
+        if removed_index is not None:
+            active_index = state.get('activePlayerIndex', 0)
+            day_starter = state.get('dayStarterIndex', 0)
+
+            if active_index > removed_index:
+                state['activePlayerIndex'] = max(0, active_index - 1)
+            elif active_index == removed_index:
+                state['activePlayerIndex'] = min(removed_index, remaining_players - 1)
+
+            if day_starter > removed_index:
+                state['dayStarterIndex'] = max(0, day_starter - 1)
+            elif day_starter == removed_index:
+                state['dayStarterIndex'] = min(removed_index, remaining_players - 1)
 
         write_game_state(game, state)
         db.commit()

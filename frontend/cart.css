@@ -512,7 +512,8 @@ h1 {
     overflow-wrap: anywhere;
 }
 
-.players-board {
+.players-board,
+.leaderboard-list {
     list-style: none;
     display: grid;
     gap: 10px;
@@ -520,7 +521,8 @@ h1 {
     padding: 0;
 }
 
-.players-board li {
+.players-board li,
+.leaderboard-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
